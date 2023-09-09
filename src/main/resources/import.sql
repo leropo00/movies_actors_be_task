@@ -17,7 +17,7 @@ CREATE TABLE actors
     imdbID      VARCHAR(20)  NOT NULL PRIMARY KEY,
     first_name  VARCHAR(255) NOT NULL,
     last_name   VARCHAR(255) NOT NULL,
-    gender      ENUM('male', 'female') NOT NULL,
+    gender      ENUM('MALE', 'FEMALE') NOT NULL,
     birth_date  DATE,
     created_at  TIMESTAMP NOT NULL,
     updated_at  TIMESTAMP NOT NULL
