@@ -30,7 +30,7 @@ public class ActorResource {
     @GET
     @Path("/{id}")
     @Counted(name = "getSingleActors", description = "count for: /actors/{id}")
-    public Response getAllActors(@PathParam("id") String actorId) {
+    public Response getSingleActor(@PathParam("id") String actorId) {
         Optional<Actor> actor = actorService.findActorById(actorId);
         if(actor.isEmpty()) return Response.status(Response.Status.NOT_FOUND).build();
         return Response.ok(actor.get()).build();

@@ -48,6 +48,11 @@ public class MovieService {
         movieRepository.persistAndFlush(entity);
     }
 
+    @Transactional
+    public boolean deleteMovieById(String movieId) {
+        return movieRepository.deleteById(movieId);
+    }
+
     private void setMovieActors(Movie data, MovieEntity entity) {
         // not setting actors means they will not be changed
         if(data.getActors() == null) return;
@@ -62,8 +67,4 @@ public class MovieService {
         }
     }
 
-    @Transactional
-    public boolean deleteMovieById(String movieId) {
-       return movieRepository.deleteById(movieId);
-    }
 }
