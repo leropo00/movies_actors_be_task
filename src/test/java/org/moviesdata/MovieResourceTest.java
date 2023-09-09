@@ -10,12 +10,18 @@ import static org.hamcrest.CoreMatchers.is;
 public class MovieResourceTest {
 
     @Test
-    public void testHelloEndpoint() {
+    public void testMoviesEndpoint() {
         given()
           .when().get("/movies")
           .then()
-             .statusCode(200)
-             .body(is("Hello RESTEasy"));
+             .statusCode(200);
     }
 
+    @Test
+    public void testActorsEndpoint() {
+        given()
+                .when().get("/actors")
+                .then()
+                .statusCode(200);
+    }
 }
