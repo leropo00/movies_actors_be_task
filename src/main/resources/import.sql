@@ -1,3 +1,5 @@
+--  TABLE CREATION STATEMENTS --
+
 DROP TABLE  IF EXISTS  movies_cast;
 DROP TABLE  IF EXISTS  actors;
 DROP TABLE  IF EXISTS  movies;
@@ -31,6 +33,10 @@ CREATE TABLE movies_cast
     FOREIGN KEY (movie_id) REFERENCES movies(imdbID) ,
     FOREIGN KEY (actor_id) REFERENCES actors(imdbID)
 );
+
+CREATE  INDEX reversed_pk_movies_cast ON movies_cast(actor_id, movie_id);
+
+--  DATA INSERT STATEMENTS --
 
  -- test data is inserted in separate queries for easier debuging, if queries fail --
 
