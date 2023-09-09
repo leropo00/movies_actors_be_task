@@ -2,10 +2,12 @@ package org.moviesdata.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.moviesdata.domain.Movie;
 import org.moviesdata.model.MovieEntity;
 import org.moviesdata.repository.MovieRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class MovieService {
@@ -13,9 +15,9 @@ public class MovieService {
     @Inject
     MovieRepository movieRepository;
 
-    public List<MovieEntity> listAllMovies() {
+    public List<Movie> listAllMovies() {
 
        return movieRepository.findAll()
-                .list();
+                .list().stream().map(Movie::fromEntity).collect(Collectors.toList());
     }
 }
