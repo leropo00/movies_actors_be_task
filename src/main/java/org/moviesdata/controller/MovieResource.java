@@ -20,7 +20,7 @@ public class MovieResource {
 
     @GET
     @Counted(name = "getAllMovies", description = "count for: /movies")
-    public Response getAllActors() {
+    public Response getAllMovies() {
 
         return Response.ok(movieService.listAllMovies()).build();
     }
