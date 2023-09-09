@@ -3,6 +3,7 @@ package org.moviesdata.domain;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.moviesdata.model.MovieEntity;
 
@@ -23,7 +24,7 @@ public class Movie {
     @NotEmpty
     private String description;
 
-    @NotEmpty
+    @NotNull
     @JsonProperty("release_year")
     private Integer releaseYear;
 
