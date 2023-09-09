@@ -4,16 +4,17 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.moviesdata.domain.Movie;
+import org.moviesdata.model.ActorEntity;
 import org.moviesdata.model.MovieEntity;
 import org.moviesdata.repository.MovieRepository;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class MovieService {
+    @Inject
+    ActorService actorService;
 
     @Inject
     MovieRepository movieRepository;
@@ -32,6 +33,7 @@ public class MovieService {
     @Transactional
     public void createMovie(Movie data) {
         MovieEntity entity = MovieEntity.fromDomain(data, true);
+        setMovieActors(data, entity);
         movieRepository.persistAndFlush(entity);
     }
 
@@ -42,7 +44,22 @@ public class MovieService {
         entity.setDescription(data.getDescription());
         entity.setReleaseYear(data.getReleaseYear());
         entity.setUpdatedDate(new Date());
+        setMovieActors(data, entity);
         movieRepository.persistAndFlush(entity);
+    }
+
+    private void setMovieActors(Movie data, MovieEntity entity) {
+        // not setting actors means they will not be changed
+        if(data.getActors() == null) return;
+
+        // empty list removes all the actors from movie
+        if(data.getActors().isEmpty()) {
+            entity.setActors(new HashSet<>());
+        }
+        else {
+            Set<ActorEntity> actors = actorService.findActorEntities(data.getActors()).stream().collect(Collectors.toSet());
+            entity.setActors(actors);
+        }
     }
 
     @Transactional
