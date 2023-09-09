@@ -24,4 +24,11 @@ public class MovieResource {
 
         return Response.ok(movieService.listAllMovies()).build();
     }
+
+    @GET
+    @Path("/{id}")
+    @Counted(name = "getSingleMovie", description = "count for: /movies/{id}")
+    public Response getMovie(@PathParam("id") String movieId) {
+        return Response.ok().build();
+    }
 }
