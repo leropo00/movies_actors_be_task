@@ -6,6 +6,7 @@ import lombok.Data;
 import org.moviesdata.model.ActorEntity;
 import org.moviesdata.model.MovieEntity;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,6 +22,9 @@ public class Actor {
     @JsonProperty("last_name")
     private String lastName;
 
+    @JsonProperty("birth_date")
+    private Date birthDate;
+
     private String gender;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -32,6 +36,7 @@ public class Actor {
         actor.setFirstName(entity.getFirstName());
         actor.setLastName(entity.getLastName());
         actor.setGender(entity.getGender().name().toLowerCase());
+        actor.setBirthDate(entity.getBirthDate());
         if(entity.getMovies() != null) {
             actor.setMovies(entity.getMovies().stream().map(MovieEntity::getImdbID).collect(Collectors.toList()));
         }

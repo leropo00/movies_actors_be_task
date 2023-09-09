@@ -29,6 +29,10 @@ public class ActorEntity {
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
 
+    @Column(name = "birth_date")
+    @Temporal(TemporalType.DATE)
+    private Date birthDate;
+
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createDate;
