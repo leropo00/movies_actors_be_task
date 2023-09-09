@@ -62,6 +62,11 @@ public class MovieResource {
     @Path("/{id}")
     @Counted(name = "deleteMovie", description = "count for: DELETE /movies/{id}")
     public Response deleteMovie(@PathParam("id") String movieId) {
+        if(movieService.findMovieById(movieId).isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        boolean success = movieService.deleteMovieById(movieId);
+        if(!success) return Response.serverError().build();
         return Response.noContent().build();
     }
 }
