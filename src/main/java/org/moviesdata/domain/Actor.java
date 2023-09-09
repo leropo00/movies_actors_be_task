@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
+import org.moviesdata.constants.GenderEnum;
 import org.moviesdata.model.ActorEntity;
 import org.moviesdata.model.MovieEntity;
 
@@ -48,4 +49,7 @@ public class Actor {
         return actor;
     }
 
+    public GenderEnum getGenderEnum() {
+        return GenderEnum.valueOf(this.gender.toUpperCase());
+    }
 }
