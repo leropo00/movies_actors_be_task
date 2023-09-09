@@ -7,10 +7,10 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-@Path("/movies")
+@Path("/actors")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class MovieResource {
+public class ActorResource {
 
     @GET
     public Response getAllActors() {
