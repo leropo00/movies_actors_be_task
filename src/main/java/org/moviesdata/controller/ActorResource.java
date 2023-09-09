@@ -8,7 +8,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.metrics.annotation.Counted;
-import org.moviesdata.service.MovieService;
+import org.moviesdata.service.ActorService;
 
 @Path("/actors")
 @Produces(MediaType.APPLICATION_JSON)
@@ -16,7 +16,7 @@ import org.moviesdata.service.MovieService;
 public class ActorResource {
 
     @Inject
-    MovieService movieService;
+    ActorService actorService;
 
     @GET
     @Counted(name = "getAllActors", description = "count for: /actors")
