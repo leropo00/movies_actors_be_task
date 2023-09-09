@@ -39,6 +39,9 @@ public class ActorResource {
     @POST
     @Counted(name = "createActor", description = "count for: POST /actors/")
     public Response createActor(@Valid @NotNull Actor actor, @Context UriInfo uriInfo) {
+        if(actorService.findActorById(actor.getImdbID()).isPresent())
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        actorService.createActor(actor);
         UriBuilder uriBuilder = uriInfo.getAbsolutePathBuilder();
         uriBuilder.path(actor.getImdbID());
         return Response.created(uriBuilder.build()).build();
@@ -48,6 +51,10 @@ public class ActorResource {
     @Path("/{id}")
     @Counted(name = "updateActor", description = "count for: PUT /actors/{id}")
     public Response updateActor(@PathParam("id") String actorId, @Valid @NotNull Actor actor) {
+        if(actorService.findActorById(actorId).isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+         actorService.updateActor(actor, actorId);
         return Response.ok().build();
     }
 
@@ -55,6 +62,11 @@ public class ActorResource {
     @Path("/{id}")
     @Counted(name = "deleteActor", description = "count for: DELETE /actors/{id}")
     public Response deleteActor(@PathParam("id") String actorId) {
+        if(actorService.findActorById(actorId).isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        boolean success = actorService.deleteActorById(actorId);
+        if(!success) return Response.serverError().build();
         return Response.noContent().build();
     }
 }

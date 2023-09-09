@@ -2,6 +2,7 @@ package org.moviesdata.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.moviesdata.domain.Actor;
 import org.moviesdata.model.ActorEntity;
 import org.moviesdata.repository.ActorRepository;
@@ -38,5 +39,27 @@ public class ActorService {
                         " where a.imdbID in ( :ids )", ActorEntity.class);
                 query.setParameter("ids", ids);
                 return query.getResultList();
+    }
+
+    @Transactional
+    public void createActor(Actor actor) {
+        ActorEntity entity = ActorEntity.fromDomain(actor, true);
+        actorRepository.persistAndFlush(entity);
+    }
+
+    @Transactional
+    public void updateActor(Actor data, String actorId) {
+        ActorEntity entity = actorRepository.findById(actorId);
+        entity.setGender(data.getGenderEnum());
+        entity.setFirstName(data.getFirstName());
+        entity.setLastName(data.getLastName());
+        entity.setLastName(data.getLastName());
+        entity.setBirthDate(data.getBirthDate());
+        actorRepository.persistAndFlush(entity);
+    }
+
+    @Transactional
+    public boolean deleteActorById(String actorId) {
+        return actorRepository.deleteById(actorId);
     }
 }
