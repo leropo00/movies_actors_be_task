@@ -6,6 +6,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.metrics.annotation.Counted;
 
 @Path("/actors")
 @Produces(MediaType.APPLICATION_JSON)
@@ -13,6 +14,7 @@ import jakarta.ws.rs.core.Response;
 public class ActorResource {
 
     @GET
+    @Counted(name = "getAllActors", description = "count for: /actors")
     public Response getAllActors() {
         return Response.ok().build();
     }
