@@ -24,4 +24,31 @@ public class MovieResourceTest {
                 .then()
                 .statusCode(200);
     }
+
+    @Test
+    public void testGetMovieEndpoint() {
+        given()
+                .when().get("/movies/tt5027774")
+                .then()
+                .statusCode(200);
+
+        given()
+                .when().get("/movies/tt0180093")
+                .then()
+                .statusCode(404);
+
+    }
+
+    @Test
+    public void testGetActorEndpoint() {
+        given()
+                .when().get("/actors/nm0000437")
+                .then()
+                .statusCode(200);
+
+        given()
+                .when().get("/actors/nm0001467")
+                .then()
+                .statusCode(404);
+    }
 }
