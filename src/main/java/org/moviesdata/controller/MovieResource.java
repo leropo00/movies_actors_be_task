@@ -38,6 +38,10 @@ public class MovieResource {
     @POST
     @Counted(name = "createMovie", description = "count for: POST /movies/")
     public Response createMovie(@Valid @NotNull Movie movie, @Context UriInfo uriInfo) {
+        if(movieService.findMovieById(movie.getImdbID()).isPresent()) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        movieService.createMovie(movie);
         UriBuilder uriBuilder = uriInfo.getAbsolutePathBuilder();
         uriBuilder.path(movie.getImdbID());
         return Response.created(uriBuilder.build()).build();
@@ -46,7 +50,11 @@ public class MovieResource {
     @PUT
     @Path("/{id}")
     @Counted(name = "updateMovie", description = "count for: PUT /movies/{id}")
-    public Response updateMovie(@PathParam("id") String movieId, @Valid @NotNull Movie movie) {
+    public Response updateMovie(@PathParam("id") String movieId, @Valid @NotNull Movie data) {
+        if(movieService.findMovieById(movieId).isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        movieService.updateMovie(data, movieId);
         return Response.ok().build();
     }
 
