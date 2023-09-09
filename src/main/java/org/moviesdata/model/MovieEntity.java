@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.moviesdata.domain.Movie;
 
 import java.util.*;
 
@@ -60,5 +61,19 @@ public class MovieEntity {
             return false;
         MovieEntity other = (MovieEntity) obj;
         return Objects.equals(this.imdbID, other.getImdbID());
+    }
+
+    public static MovieEntity fromDomain(Movie data, boolean addDate) {
+        MovieEntity entity = new MovieEntity();
+        entity.setImdbID(data.getImdbID());
+        entity.setTitle(data.getTitle());
+        entity.setDescription(data.getDescription());
+        entity.setReleaseYear(data.getReleaseYear());
+        if(addDate) {
+            final Date cretedDate = new Date();
+            entity.setCreateDate(cretedDate);
+            entity.setUpdatedDate(cretedDate);
+        }
+        return entity;
     }
 }
