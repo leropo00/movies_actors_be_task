@@ -1,6 +1,8 @@
 package org.moviesdata.controller;
 
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import org.eclipse.microprofile.metrics.annotation.Counted;
@@ -36,7 +38,7 @@ public class ActorResource {
 
     @POST
     @Counted(name = "createActor", description = "count for: POST /actors/")
-    public Response createActor(Actor actor, @Context UriInfo uriInfo) {
+    public Response createActor(@Valid @NotNull Actor actor, @Context UriInfo uriInfo) {
         UriBuilder uriBuilder = uriInfo.getAbsolutePathBuilder();
         uriBuilder.path(actor.getImdbID());
         return Response.created(uriBuilder.build()).build();
@@ -45,7 +47,7 @@ public class ActorResource {
     @PUT
     @Path("/{id}")
     @Counted(name = "updateActor", description = "count for: PUT /actors/{id}")
-    public Response updateActor(@PathParam("id") String actorId, Actor actor) {
+    public Response updateActor(@PathParam("id") String actorId, @Valid @NotNull Actor actor) {
         return Response.ok().build();
     }
 

@@ -2,6 +2,7 @@ package org.moviesdata.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 import org.moviesdata.model.MovieEntity;
 
@@ -12,13 +13,17 @@ import org.moviesdata.model.ActorEntity;
 @Data
 public class Movie {
 
+    @NotEmpty
     @JsonProperty("id")
     private String imdbID;
 
+    @NotEmpty
     private String title;
 
+    @NotEmpty
     private String description;
 
+    @NotEmpty
     @JsonProperty("release_year")
     private Integer releaseYear;
 

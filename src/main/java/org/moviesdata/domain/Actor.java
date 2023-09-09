@@ -2,6 +2,7 @@ package org.moviesdata.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 import org.moviesdata.model.ActorEntity;
 import org.moviesdata.model.MovieEntity;
@@ -13,18 +14,22 @@ import java.util.stream.Collectors;
 @Data
 public class Actor {
 
+    @NotEmpty
     @JsonProperty("id")
     private String imdbID;
 
+    @NotEmpty
     @JsonProperty("first_name")
     private String firstName;
 
+    @NotEmpty
     @JsonProperty("last_name")
     private String lastName;
 
     @JsonProperty("birth_date")
     private Date birthDate;
 
+    @NotEmpty
     private String gender;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
