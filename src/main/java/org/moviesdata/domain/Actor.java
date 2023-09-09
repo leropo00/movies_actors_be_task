@@ -1,8 +1,13 @@
 package org.moviesdata.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.moviesdata.model.ActorEntity;
+import org.moviesdata.model.MovieEntity;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 public class Actor {
@@ -18,12 +23,18 @@ public class Actor {
 
     private String gender;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<String> movies;
+
     public static Actor fromEntity(ActorEntity entity) {
         Actor actor = new Actor();
         actor.setImdbID(entity.getImdbID());
         actor.setFirstName(entity.getFirstName());
         actor.setLastName(entity.getLastName());
         actor.setGender(entity.getGender().name().toLowerCase());
+        if(entity.getMovies() != null) {
+            actor.setMovies(entity.getMovies().stream().map(MovieEntity::getImdbID).collect(Collectors.toList()));
+        }
         return actor;
     }
 

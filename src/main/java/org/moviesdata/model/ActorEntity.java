@@ -1,18 +1,13 @@
 package org.moviesdata.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import jakarta.persistence.*;
 
 import lombok.Data;
 import org.moviesdata.constants.GenderEnum;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity(name = "Actor")
 @Table(name = "actors")
@@ -40,4 +35,7 @@ public class ActorEntity {
     @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedDate;
+
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "actors")
+    private List<MovieEntity> movies = new ArrayList<>();
 }
