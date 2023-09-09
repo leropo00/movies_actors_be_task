@@ -3,9 +3,7 @@ package org.moviesdata.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity(name = "Movie")
 @Table(name = "movies")
@@ -39,6 +37,6 @@ public class MovieEntity {
             name = "movies_cast",
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "actor_id"))
-    private List<ActorEntity> actors = new ArrayList<>();
+    private Set<ActorEntity> actors = new HashSet<>();
 
 }

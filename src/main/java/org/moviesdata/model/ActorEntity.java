@@ -5,9 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.moviesdata.constants.GenderEnum;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity(name = "Actor")
 @Table(name = "actors")
@@ -37,5 +35,5 @@ public class ActorEntity {
     private Date updatedDate;
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "actors")
-    private List<MovieEntity> movies = new ArrayList<>();
+    private Set<MovieEntity> movies = new HashSet<>();
 }
