@@ -23,15 +23,12 @@ public class ActorEntity {
     @Column(name = "imdbID")
     private String imdbID;
 
-    @Id
     @Column(name = "first_name")
     private String firstName;
 
-    @Id
     @Column(name = "last_name")
     private String lastName;
 
-    @Id
     @Column(name = "gender")
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
