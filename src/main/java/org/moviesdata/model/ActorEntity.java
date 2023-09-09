@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.moviesdata.constants.GenderEnum;
+import org.moviesdata.domain.Actor;
 
 import java.util.*;
 
@@ -65,5 +66,20 @@ public class ActorEntity {
             return false;
         ActorEntity other = (ActorEntity) obj;
         return Objects.equals(this.imdbID, other.getImdbID());
+    }
+
+    public static ActorEntity fromDomain(Actor actor, boolean addDate) {
+        ActorEntity entity = new ActorEntity();
+        entity.setImdbID(actor.getImdbID());
+        entity.setFirstName(actor.getFirstName());
+        entity.setLastName(actor.getLastName());
+        entity.setGender(actor.getGenderEnum());
+        entity.setBirthDate(actor.getBirthDate());
+        if(addDate) {
+            final Date createdDate = new Date();
+            entity.setCreateDate(createdDate);
+            entity.setUpdatedDate(createdDate);
+        }
+        return entity;
     }
 }
