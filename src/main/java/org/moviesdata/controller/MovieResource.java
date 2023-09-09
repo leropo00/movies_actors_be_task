@@ -1,13 +1,8 @@
 package org.moviesdata.controller;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
 import org.eclipse.microprofile.metrics.annotation.Counted;
 import org.moviesdata.domain.Movie;
 import org.moviesdata.service.MovieService;
@@ -23,7 +18,7 @@ public class MovieResource {
     MovieService movieService;
 
     @GET
-    @Counted(name = "getAllMovies", description = "count for: /movies")
+    @Counted(name = "getAllMovies", description = "count for: GET /movies")
     public Response getAllMovies() {
 
         return Response.ok(movieService.listAllMovies()).build();
@@ -31,10 +26,32 @@ public class MovieResource {
 
     @GET
     @Path("/{id}")
-    @Counted(name = "getSingleMovie", description = "count for: /movies/{id}")
-    public Response getMovie(@PathParam("id") String movieId) {
+    @Counted(name = "getSingleMovie", description = "count for: GET /movies/{id}")
+    public Response getSingleMovie(@PathParam("id") String movieId) {
         Optional<Movie> movie = movieService.findMovieById(movieId);
         if(movie.isEmpty()) return Response.status(Response.Status.NOT_FOUND).build();
         return Response.ok(movie.get()).build();
+    }
+
+    @POST
+    @Counted(name = "createMovie", description = "count for: POST /movies/")
+    public Response createMovie(Movie movie, @Context UriInfo uriInfo) {
+        UriBuilder uriBuilder = uriInfo.getAbsolutePathBuilder();
+        uriBuilder.path(movie.getImdbID());
+        return Response.created(uriBuilder.build()).build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    @Counted(name = "updateMovie", description = "count for: PUT /movies/{id}")
+    public Response updateMovie(@PathParam("id") String movieId, Movie movie) {
+        return Response.ok().build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Counted(name = "deleteMovie", description = "count for: DELETE /movies/{id}")
+    public Response deleteMovie(@PathParam("id") String movieId, Movie movie) {
+        return Response.noContent().build();
     }
 }

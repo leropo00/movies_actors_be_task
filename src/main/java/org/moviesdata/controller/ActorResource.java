@@ -2,8 +2,7 @@ package org.moviesdata.controller;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.*;
 import org.eclipse.microprofile.metrics.annotation.Counted;
 import org.moviesdata.domain.Actor;
 import org.moviesdata.domain.Movie;
@@ -35,4 +34,25 @@ public class ActorResource {
         return Response.ok(actor.get()).build();
     }
 
+    @POST
+    @Counted(name = "createActor", description = "count for: POST /actors/")
+    public Response createMovie(Movie movie, @Context UriInfo uriInfo) {
+        UriBuilder uriBuilder = uriInfo.getAbsolutePathBuilder();
+        uriBuilder.path(movie.getImdbID());
+        return Response.created(uriBuilder.build()).build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    @Counted(name = "updateActor", description = "count for: PUT /actors/{id}")
+    public Response updateMovie(@PathParam("id") String ActorId, Actor actor) {
+        return Response.ok().build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Counted(name = "deleteActor", description = "count for: DELETE /actors/{id}")
+    public Response deleteActor(@PathParam("id") String ActorId, Actor actor) {
+        return Response.noContent().build();
+    }
 }
