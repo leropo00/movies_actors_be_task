@@ -51,7 +51,7 @@ public class MovieResource {
     @DELETE
     @Path("/{id}")
     @Counted(name = "deleteMovie", description = "count for: DELETE /movies/{id}")
-    public Response deleteMovie(@PathParam("id") String movieId, Movie movie) {
+    public Response deleteMovie(@PathParam("id") String movieId) {
         return Response.noContent().build();
     }
 }

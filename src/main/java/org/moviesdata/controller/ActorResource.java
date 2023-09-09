@@ -36,23 +36,23 @@ public class ActorResource {
 
     @POST
     @Counted(name = "createActor", description = "count for: POST /actors/")
-    public Response createMovie(Movie movie, @Context UriInfo uriInfo) {
+    public Response createActor(Actor actor, @Context UriInfo uriInfo) {
         UriBuilder uriBuilder = uriInfo.getAbsolutePathBuilder();
-        uriBuilder.path(movie.getImdbID());
+        uriBuilder.path(actor.getImdbID());
         return Response.created(uriBuilder.build()).build();
     }
 
     @PUT
     @Path("/{id}")
     @Counted(name = "updateActor", description = "count for: PUT /actors/{id}")
-    public Response updateMovie(@PathParam("id") String ActorId, Actor actor) {
+    public Response updateActor(@PathParam("id") String actorId, Actor actor) {
         return Response.ok().build();
     }
 
     @DELETE
     @Path("/{id}")
     @Counted(name = "deleteActor", description = "count for: DELETE /actors/{id}")
-    public Response deleteActor(@PathParam("id") String ActorId, Actor actor) {
+    public Response deleteActor(@PathParam("id") String actorId) {
         return Response.noContent().build();
     }
 }
