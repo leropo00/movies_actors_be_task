@@ -1,6 +1,7 @@
 package org.moviesdata.service;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -24,6 +25,11 @@ public class MovieService {
 
     public List<Movie> listAllMovies() {
        return movieRepository.findAll()
+                .list().stream().map(Movie::fromEntity).collect(Collectors.toList());
+    }
+    public List<Movie> listAllMovies(Page page) {
+        return movieRepository.findAll()
+                .page(page)
                 .list().stream().map(Movie::fromEntity).collect(Collectors.toList());
     }
 
