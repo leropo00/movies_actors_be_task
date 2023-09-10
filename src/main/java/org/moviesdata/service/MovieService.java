@@ -1,5 +1,7 @@
 package org.moviesdata.service;
 
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -32,7 +34,28 @@ public class MovieService {
     }
 
     public List<Movie> searchMovies(MovieQueryParams inputParameters) {
-        return listAllMovies();
+        StringBuilder queryString = new StringBuilder("select m from Movie m where ");
+        Parameters parameters = new Parameters();
+
+        List<String> statements = new ArrayList<>();
+        if(inputParameters.getTitle().isPresent()) {
+            statements.add("lower(m.title) like lower(concat(:title ,'%'))");
+            parameters.and("title", inputParameters.getTitle().get());
+        }
+        // currently implemented with case insensitive like search
+        // would be better implented with fulltext, if possible in H2
+        if(inputParameters.getDescription().isPresent()) {
+            statements.add("lower(m.description) like lower(concat('%',:description,'%'))");
+            parameters.and("description", inputParameters.getDescription().get());
+        }
+        if(inputParameters.getReleaseYear().isPresent()) {
+            statements.add("m.releaseYear = :release_year");
+            parameters.and("release_year", inputParameters.getReleaseYear().get());
+        }
+        queryString.append(String.join(" and ", statements));
+
+        return movieRepository.find(queryString.toString(), parameters).
+             stream().map(Movie::fromEntity).collect(Collectors.toList());
     }
 
     @Transactional
