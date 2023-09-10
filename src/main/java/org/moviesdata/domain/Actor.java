@@ -1,5 +1,6 @@
 package org.moviesdata.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
@@ -49,6 +50,7 @@ public class Actor {
         return actor;
     }
 
+    @JsonIgnore
     public GenderEnum getGenderEnum() {
         return GenderEnum.valueOf(this.gender.toUpperCase());
     }
