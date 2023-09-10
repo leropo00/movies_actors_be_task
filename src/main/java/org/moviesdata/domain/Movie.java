@@ -2,8 +2,10 @@ package org.moviesdata.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.moviesdata.model.MovieEntity;
 
@@ -19,13 +21,17 @@ public class Movie {
     private String imdbID;
 
     @NotEmpty
+    @Size(max = 255, message = "title should not be greater than 255")
     private String title;
 
     @NotEmpty
+    @Size(max = 1000, message = "description should not be greater than 1000")
     private String description;
 
     @NotNull
     @JsonProperty("release_year")
+    @Min(1850)
+    // oldest movie on imdb is from 1888, added several years this as buffer
     private Integer releaseYear;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
