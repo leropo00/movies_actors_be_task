@@ -34,25 +34,28 @@ public class MovieService {
     }
 
     public List<Movie> searchMovies(MovieQueryParams inputParameters) {
-        StringBuilder queryString = new StringBuilder("select m from Movie m where ");
+        StringBuilder queryString = new StringBuilder("select m from Movie m ");
         Parameters parameters = new Parameters();
 
-        List<String> statements = new ArrayList<>();
-        if(inputParameters.getTitle().isPresent()) {
-            statements.add("lower(m.title) like lower(concat(:title ,'%'))");
-            parameters.and("title", inputParameters.getTitle().get());
+        if(inputParameters.anyParameterPresent()) {
+            List<String> statements = new ArrayList<>();
+            queryString.append(" where ");
+            if (inputParameters.getTitle().isPresent()) {
+                statements.add("lower(m.title) like lower(concat(:title ,'%'))");
+                parameters.and("title", inputParameters.getTitle().get());
+            }
+            // currently implemented with case insensitive like search
+            // would be better implented with fulltext, if possible in H2
+            if (inputParameters.getDescription().isPresent()) {
+                statements.add("lower(m.description) like lower(concat('%',:description,'%'))");
+                parameters.and("description", inputParameters.getDescription().get());
+            }
+            if (inputParameters.getReleaseYear().isPresent()) {
+                statements.add("m.releaseYear = :release_year");
+                parameters.and("release_year", inputParameters.getReleaseYear().get());
+            }
+            queryString.append(String.join(" and ", statements));
         }
-        // currently implemented with case insensitive like search
-        // would be better implented with fulltext, if possible in H2
-        if(inputParameters.getDescription().isPresent()) {
-            statements.add("lower(m.description) like lower(concat('%',:description,'%'))");
-            parameters.and("description", inputParameters.getDescription().get());
-        }
-        if(inputParameters.getReleaseYear().isPresent()) {
-            statements.add("m.releaseYear = :release_year");
-            parameters.and("release_year", inputParameters.getReleaseYear().get());
-        }
-        queryString.append(String.join(" and ", statements));
 
         return movieRepository.find(queryString.toString(), parameters).
              stream().map(Movie::fromEntity).collect(Collectors.toList());

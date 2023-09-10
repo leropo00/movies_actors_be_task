@@ -1,5 +1,6 @@
 package org.moviesdata.domain;
 
+import io.quarkus.panache.common.Page;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -14,4 +15,7 @@ public class MovieQueryParams {
 
     private Optional<Integer> releaseYear;
 
+    public boolean anyParameterPresent() {
+        return title.isPresent() || description.isPresent() || releaseYear.isPresent();
+    }
 }
