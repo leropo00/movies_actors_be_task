@@ -1,5 +1,6 @@
 package org.moviesdata.service;
 
+import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -24,6 +25,12 @@ public class ActorService {
 
     public List<Actor> listAllActors() {
         return actorRepository.findAll()
+                .list().stream().map(Actor::fromEntity).collect(Collectors.toList());
+    }
+
+    public List<Actor> listAllActors(Page page) {
+        return actorRepository.findAll()
+                .page(page)
                 .list().stream().map(Actor::fromEntity).collect(Collectors.toList());
     }
 
