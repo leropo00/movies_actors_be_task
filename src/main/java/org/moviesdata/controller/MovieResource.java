@@ -3,6 +3,7 @@ package org.moviesdata.controller;
 import io.quarkus.panache.common.Page;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
@@ -28,8 +29,8 @@ public class MovieResource {
             @QueryParam ("title") Optional<String> title,
             @QueryParam ("description") Optional<String> description,
             @QueryParam ("release_year") Optional<Integer> releaseYear,
-            @QueryParam ("page_index") Optional<Integer> pageIndex,
-            @QueryParam ("page_size") Optional<Integer> pageSize
+            @QueryParam ("page_index") Optional<@Min(0) Integer>  pageIndex,
+            @QueryParam ("page_size") Optional<@Min (1) Integer> pageSize
     ) {
         if(pageIndex.isPresent() && pageSize.isEmpty()) return Response.status(Response.Status.BAD_REQUEST).build();
         final Optional<Page> pagination = pageSize.isPresent() ?
