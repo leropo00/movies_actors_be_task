@@ -1,5 +1,6 @@
 package org.moviesdata.controller;
 
+import io.quarkus.panache.common.Page;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -11,6 +12,7 @@ import org.moviesdata.domain.Movie;
 import org.moviesdata.service.ActorService;
 import org.moviesdata.service.MovieService;
 
+import java.util.List;
 import java.util.Optional;
 
 @Path("/actors")
@@ -23,8 +25,17 @@ public class ActorResource {
 
     @GET
     @Counted(name = "getAllActors", description = "count for: /actors")
-    public Response getAllActors() {
-        return Response.ok(actorService.listAllActors()).build();
+    public Response getAllActors(@QueryParam ("page_index") Optional<Integer> pageIndex,
+                                 @QueryParam ("page_size") Optional<Integer> pageSize) {
+        if(pageIndex.isPresent() && pageSize.isEmpty()) return Response.status(Response.Status.BAD_REQUEST).build();
+        List<Actor> actors;
+        if(pageSize.isPresent()) {
+            actors = actorService.listAllActors(Page.of(pageIndex.orElse(0), pageSize.get()));
+        }
+        else {
+            actors = actorService.listAllActors();
+        }
+        return Response.ok(actors).build();
     }
 
     @GET
