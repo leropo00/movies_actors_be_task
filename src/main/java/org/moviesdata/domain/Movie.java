@@ -12,6 +12,7 @@ import org.moviesdata.model.MovieEntity;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.moviesdata.model.ActorEntity;
+import org.moviesdata.validator.YearInFuture;
 
 @Data
 public class Movie {
@@ -30,8 +31,8 @@ public class Movie {
 
     @NotNull
     @JsonProperty("release_year")
-    @Min(1850)
-    // oldest movie on imdb is from 1888, added several years this as buffer
+    @Min(1850)     // oldest movie on imdb is from 1888, added several years this as buffer
+    @YearInFuture(10)
     private Integer releaseYear;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
