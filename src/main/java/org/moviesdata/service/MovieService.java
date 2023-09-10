@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.moviesdata.domain.Movie;
+import org.moviesdata.domain.MovieQueryParams;
 import org.moviesdata.model.ActorEntity;
 import org.moviesdata.model.MovieEntity;
 import org.moviesdata.repository.MovieRepository;
@@ -28,6 +29,10 @@ public class MovieService {
         Optional<MovieEntity> movieEntity = movieRepository.findByIdOptional(movieId);
         if(movieEntity.isEmpty()) return Optional.empty();
         return Optional.of(Movie.fromEntity(movieEntity.get()));
+    }
+
+    public List<Movie> searchMovies(MovieQueryParams inputParameters) {
+        return listAllMovies();
     }
 
     @Transactional
