@@ -1,22 +1,19 @@
 package org.moviesdata.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import jakarta.persistence.*;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.moviesdata.constants.GenderEnum;
+import org.moviesdata.domain.Actor;
 
-import java.util.Date;
+import java.util.*;
 
 @Entity(name = "Actor")
 @Table(name = "actors")
-@Data
+@Setter
+@Getter
 public class ActorEntity {
 
     @Id
@@ -33,6 +30,10 @@ public class ActorEntity {
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
 
+    @Column(name = "birth_date")
+    @Temporal(TemporalType.DATE)
+    private Date birthDate;
+
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createDate;
@@ -40,4 +41,45 @@ public class ActorEntity {
     @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedDate;
+
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "actors")
+    private Set<MovieEntity> movies = new HashSet<>();
+
+    public ActorEntity() {}
+
+    public ActorEntity(String id) {
+        this.imdbID = id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.imdbID);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ActorEntity other = (ActorEntity) obj;
+        return Objects.equals(this.imdbID, other.getImdbID());
+    }
+
+    public static ActorEntity fromDomain(Actor actor, boolean addDate) {
+        ActorEntity entity = new ActorEntity();
+        entity.setImdbID(actor.getImdbID());
+        entity.setFirstName(actor.getFirstName());
+        entity.setLastName(actor.getLastName());
+        entity.setGender(actor.getGenderEnum());
+        entity.setBirthDate(actor.getBirthDate());
+        if(addDate) {
+            final Date createdDate = new Date();
+            entity.setCreateDate(createdDate);
+            entity.setUpdatedDate(createdDate);
+        }
+        return entity;
+    }
 }
