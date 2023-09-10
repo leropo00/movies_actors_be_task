@@ -30,7 +30,7 @@ public class MovieResource {
                                              ) {
         List<Movie> movies;
         if(title.isPresent() || description.isPresent() || releaseYear.isPresent()) {
-            MovieQueryParams queryParams = new MovieQueryParams(title, description, releaseYear);
+            MovieQueryParams queryParams = new MovieQueryParams(title, description, releaseYear, Optional.empty());
             movies = movieService.searchMovies(queryParams);
         }
         else {

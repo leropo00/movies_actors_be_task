@@ -15,6 +15,8 @@ public class MovieQueryParams {
 
     private Optional<Integer> releaseYear;
 
+    private Optional<Page> page;
+
     public boolean anyParameterPresent() {
         return title.isPresent() || description.isPresent() || releaseYear.isPresent();
     }

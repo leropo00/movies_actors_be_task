@@ -56,8 +56,11 @@ public class MovieService {
             }
             queryString.append(String.join(" and ", statements));
         }
-
-        return movieRepository.find(queryString.toString(), parameters).
+        PanacheQuery<MovieEntity> query = movieRepository.find(queryString.toString(), parameters);
+        if(inputParameters.getPage().isPresent()) {
+            query.page(inputParameters.getPage().get());
+        }
+        return query.list().
              stream().map(Movie::fromEntity).collect(Collectors.toList());
     }
 
