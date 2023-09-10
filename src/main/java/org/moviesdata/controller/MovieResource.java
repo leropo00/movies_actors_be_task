@@ -1,5 +1,6 @@
 package org.moviesdata.controller;
 
+import io.quarkus.panache.common.Page;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -26,12 +27,21 @@ public class MovieResource {
     public Response getAllMovies(
             @QueryParam ("title") Optional<String> title,
             @QueryParam ("description") Optional<String> description,
-            @QueryParam ("release_year") Optional<Integer> releaseYear
-                                             ) {
+            @QueryParam ("release_year") Optional<Integer> releaseYear,
+            @QueryParam ("page_index") Optional<Integer> pageIndex,
+            @QueryParam ("page_size") Optional<Integer> pageSize
+    ) {
+        if(pageIndex.isPresent() && pageSize.isEmpty()) return Response.status(Response.Status.BAD_REQUEST).build();
+        final Optional<Page> pagination = pageSize.isPresent() ?
+                Optional.of(Page.of(pageIndex.orElse(0), pageSize.get())) : Optional.empty();
+
         List<Movie> movies;
         if(title.isPresent() || description.isPresent() || releaseYear.isPresent()) {
-            MovieQueryParams queryParams = new MovieQueryParams(title, description, releaseYear, Optional.empty());
+            MovieQueryParams queryParams = new MovieQueryParams(title, description, releaseYear, pagination);
             movies = movieService.searchMovies(queryParams);
+        }
+        else if (pagination.isPresent()) {
+            movies = movieService.listAllMovies(pagination.get());
         }
         else {
             movies = movieService.listAllMovies();
