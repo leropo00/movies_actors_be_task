@@ -57,8 +57,10 @@ public class ResponseMetadata {
         if(this.hasPreviousPage) {
             this.previousPageIndex = this.currentPageIndex - 1;
         }
-        this.hasNextPage = true;
-        if(this.hasPreviousPage) {
+        // next page is not possible, when sum of all results displayed, counted from start page is equal or less than total counts
+        // formula for counting results from start page is following:  (currentPageIndex + 1) * pageSize
+        this.hasNextPage = ((this.currentPageIndex + 1) * this.pageSize) < this.total;
+        if(this.hasNextPage) {
             this.nextPageIndex = this.currentPageIndex + 1;
         }
     }
