@@ -40,6 +40,12 @@ public class ActorService {
         return Optional.of(Actor.fromEntity(actorEntity.get()));
     }
 
+    public int allActorsCount() {
+        // for simplicity purposes long is cast to int here
+        // this approach should allow max 2147483647 results
+        return Math.toIntExact(actorRepository.count());
+    }
+
     public List<ActorEntity> findActorEntities(List<String> ids) {
                 TypedQuery<ActorEntity> query =
                                 em.createQuery("Select a from Actor a " +
