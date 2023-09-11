@@ -35,10 +35,10 @@ public class MovieResourceTest {
 
         JSONObject json = new JSONObject(response);
         final int dataLength = json.getJSONArray("data").length();
-        final int metadataCount = json.getJSONObject("metadata").getInt("total");
 
         assertTrue(dataLength > 0);
-        assertEquals(dataLength, metadataCount);
+        assertFalse(json.getJSONObject("metadata").getBoolean("has_pagination"));
+        assertEquals(dataLength, json.getJSONObject("metadata").getInt("total"));
     }
 
     @Test
@@ -55,6 +55,38 @@ public class MovieResourceTest {
 
         assertTrue(dataLength > 0);
         assertEquals(dataLength, metadataCount);
+    }
+
+    @Test
+    public void testPaginationOnMoviess() {
+        String response = given()
+                .when().get("/movies?page_size=5&page_index=1")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString();
+
+        JSONObject json = new JSONObject(response);
+
+        JSONObject metadata = json.getJSONObject("metadata");
+
+        final int dataLength = json.getJSONArray("data").length();
+
+        assertTrue(dataLength < metadata.getInt("total")) ;
+        assertEquals(dataLength, metadata.getInt("results_count"));
+
+        assertTrue(metadata.getBoolean("has_pagination"));
+        assertTrue(metadata.getBoolean("has_next_page"));
+        assertTrue(metadata.getBoolean("has_previous_page"));
+    }
+
+
+    @Test
+    public void testPaginationOverTheLimit() {
+        given()
+                .when().get("/actors?page_size=10&page_index=10")
+                .then()
+                .statusCode(400);
     }
 
     @Test
@@ -84,7 +116,6 @@ public class MovieResourceTest {
                         .as(Actor.class);
 
         assertEquals("nm0000531", actor.getImdbID());
-
     }
 
 
