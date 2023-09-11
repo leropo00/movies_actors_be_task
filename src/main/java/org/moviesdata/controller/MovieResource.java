@@ -8,10 +8,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import org.eclipse.microprofile.metrics.annotation.Counted;
-import org.moviesdata.domain.Actor;
 import org.moviesdata.domain.Movie;
 import org.moviesdata.domain.MovieQueryParams;
-import org.moviesdata.response.ActorResponse;
 import org.moviesdata.response.MovieResponse;
 import org.moviesdata.response.ResponseMetadata;
 import org.moviesdata.service.MovieService;
@@ -59,6 +57,8 @@ public class MovieResource {
             total = movies.size();
         }
         final ResponseMetadata metadata =  pagination.isPresent() ? new ResponseMetadata(total, movies.size(), pagination.get()) : new ResponseMetadata(total);
+        if(metadata.outsidePaginationBoundaries()) return Response.status(Response.Status.BAD_REQUEST).build();
+
         return Response.ok(new MovieResponse(movies, metadata)).build();
     }
 

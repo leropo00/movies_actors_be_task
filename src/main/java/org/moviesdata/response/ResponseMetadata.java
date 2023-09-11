@@ -64,4 +64,8 @@ public class ResponseMetadata {
             this.nextPageIndex = this.currentPageIndex + 1;
         }
     }
+
+    public boolean outsidePaginationBoundaries() {
+        return this.hasPagination && this.total > 0 && this.resultCount == 0;
+    }
 }
