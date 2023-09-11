@@ -5,6 +5,7 @@ import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import org.moviesdata.domain.Movie;
 import org.moviesdata.domain.MovieQueryParams;
@@ -46,8 +47,18 @@ public class MovieService {
     }
 
     public int searchMoviesCount(MovieQueryParams inputParameters) {
-        // todo need to replace with count taking parameters into account
-        return searchMovies(inputParameters).size();
+        StringBuilder queryString = new StringBuilder("SELECT count(m) from Movie m ");
+        Parameters queryParameters = new Parameters();
+        prepareSearchQuery(inputParameters, queryString, queryParameters);
+
+        Query query = movieRepository.getEntityManager().createQuery(queryString.toString());
+        Map<String, Object> params = queryParameters.map();
+        for(String key : params.keySet()) {
+            query.setParameter(key, params.get(key));
+        }
+
+        // for simplicity purposes long is cast to int here
+        return Math.toIntExact((long) query.getSingleResult());
     }
 
     public List<Movie> searchMovies(MovieQueryParams inputParameters) {
