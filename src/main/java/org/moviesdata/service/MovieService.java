@@ -51,34 +51,17 @@ public class MovieService {
     }
 
     public List<Movie> searchMovies(MovieQueryParams inputParameters) {
-        StringBuilder queryString = new StringBuilder("select m from Movie m ");
-        Parameters parameters = new Parameters();
+        StringBuilder queryString = new StringBuilder("SELECT m from Movie m ");
+        Parameters queryParameters = new Parameters();
+        prepareSearchQuery(inputParameters, queryString, queryParameters);
 
-        if(inputParameters.anyParameterPresent()) {
-            List<String> statements = new ArrayList<>();
-            queryString.append(" where ");
-            if (inputParameters.getTitle().isPresent()) {
-                statements.add("lower(m.title) like lower(concat(:title ,'%'))");
-                parameters.and("title", inputParameters.getTitle().get());
-            }
-            // currently implemented with case insensitive like search
-            // would be better implented with fulltext, if possible in H2
-            if (inputParameters.getDescription().isPresent()) {
-                statements.add("lower(m.description) like lower(concat('%',:description,'%'))");
-                parameters.and("description", inputParameters.getDescription().get());
-            }
-            if (inputParameters.getReleaseYear().isPresent()) {
-                statements.add("m.releaseYear = :release_year");
-                parameters.and("release_year", inputParameters.getReleaseYear().get());
-            }
-            queryString.append(String.join(" and ", statements));
-        }
-        PanacheQuery<MovieEntity> query = movieRepository.find(queryString.toString(), parameters);
+        PanacheQuery<MovieEntity> query = movieRepository.find(queryString.toString(), queryParameters);
         if(inputParameters.getPage().isPresent()) {
             query.page(inputParameters.getPage().get());
         }
+
         return query.list().
-             stream().map(Movie::fromEntity).collect(Collectors.toList());
+                stream().map(Movie::fromEntity).collect(Collectors.toList());
     }
 
     @Transactional
@@ -118,4 +101,25 @@ public class MovieService {
         }
     }
 
+    private void prepareSearchQuery(MovieQueryParams inputParameters, StringBuilder queryString, Parameters queryParameters) {
+        if(!inputParameters.anyParameterPresent()) return;
+
+        List<String> statements = new ArrayList<>();
+        queryString.append(" where ");
+        if (inputParameters.getTitle().isPresent()) {
+            statements.add("lower(m.title) like lower(concat(:title ,'%'))");
+            queryParameters.and("title", inputParameters.getTitle().get());
+        }
+        // currently implemented with case insensitive like search
+        // would be better implented with fulltext, if possible in H2
+        if (inputParameters.getDescription().isPresent()) {
+            statements.add("lower(m.description) like lower(concat('%',:description,'%'))");
+            queryParameters.and("description", inputParameters.getDescription().get());
+        }
+        if (inputParameters.getReleaseYear().isPresent()) {
+            statements.add("m.releaseYear = :release_year");
+            queryParameters.and("release_year", inputParameters.getReleaseYear().get());
+        }
+        queryString.append(String.join(" and ", statements));
+    }
 }
