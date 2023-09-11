@@ -8,8 +8,10 @@ import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.moviesdata.constants.GenderEnum;
+import org.moviesdata.constants.ImdbIdType;
 import org.moviesdata.model.ActorEntity;
 import org.moviesdata.model.MovieEntity;
+import org.moviesdata.validator.ImdbId;
 
 import java.util.Date;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 public class Actor {
 
     @NotEmpty
+    @ImdbId(type = ImdbIdType.NM)
     @JsonProperty("id")
     private String imdbID;
 

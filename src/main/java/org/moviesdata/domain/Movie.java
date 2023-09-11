@@ -7,11 +7,13 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.moviesdata.constants.ImdbIdType;
 import org.moviesdata.model.MovieEntity;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import org.moviesdata.model.ActorEntity;
+import org.moviesdata.validator.ImdbId;
 import org.moviesdata.validator.YearInFuture;
 
 @Data
@@ -19,6 +21,7 @@ public class Movie {
 
     @NotEmpty
     @JsonProperty("id")
+    @ImdbId(type = ImdbIdType.TT)
     private String imdbID;
 
     @NotEmpty
@@ -31,7 +34,7 @@ public class Movie {
 
     @NotNull
     @JsonProperty("release_year")
-    @Min(1850)     // oldest movie on imdb is from 1888, added several years this as buffer
+    @Min(1850)     // oldest movie on imdb is from 1888, added several years before this as buffer
     @YearInFuture(10)
     private Integer releaseYear;
 
