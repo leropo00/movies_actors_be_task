@@ -48,7 +48,7 @@ public class MovieResource {
         final int total;
         if(queryParams.isPresent()) {
             movies = movieService.searchMovies(queryParams.get());
-            total = queryParams.isPresent() ? movieService.searchMoviesCount(queryParams.get()) : movies.size();
+            total = pagination.isPresent() ? movieService.searchMoviesCount(queryParams.get()) : movies.size();
         }
         else if (pagination.isPresent()) {
             movies = movieService.listAllMovies(pagination.get());
