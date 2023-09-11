@@ -10,7 +10,7 @@ import org.moviesdata.domain.Actor;
 import org.moviesdata.domain.Movie;
 
 @QuarkusTest
-public class MovieResourceTest {
+public class ReadOperationsOnEndpointsTest {
 
     /*
         TEMPORARY WORKAROUND:
