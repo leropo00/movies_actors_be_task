@@ -1,6 +1,7 @@
 package org.moviesdata;
 
 import io.quarkus.test.junit.QuarkusTest;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
@@ -11,20 +12,49 @@ import org.moviesdata.domain.Movie;
 @QuarkusTest
 public class MovieResourceTest {
 
+    /*
+        TEMPORARY WORKAROUND:
+            certain tests use JSON parsing to parse output
+            parsing of ActorResponse and MovieResponse
+            results in stack overflow from jackson parsing
+                 at com.fasterxml.jackson.databind.ser.BeanSerializer.serialize(BeanSerializer.java:178)
+                 at com.fasterxml.jackson.databind.ser.BeanPropertyWriter.serializeAsField(BeanPropertyWriter.java:732)
+                 at com.fasterxml.jackson.databind.ser.std.BeanSerializerBase.serializeFields(BeanSerializerBase.java:772)
+
+            when tested via Postman /actors and /movies endpoints work correctly
+     */
+
     @Test
     public void testAllMoviesEndpoint() {
-        given()
-                .when().get("/movies")
-                .then()
-                .statusCode(200);
+        String response = given()
+                    .when().get("/movies")
+                    .then()
+                    .statusCode(200)
+                    .extract()
+                    .asString();
+
+        JSONObject json = new JSONObject(response);
+        final int dataLength = json.getJSONArray("data").length();
+        final int metadataCount = json.getJSONObject("metadata").getInt("total");
+
+        assertTrue(dataLength > 0);
+        assertEquals(dataLength, metadataCount);
     }
 
     @Test
     public void testAllActorsEndpoint() {
-        given()
+        String response = given()
                 .when().get("/actors")
                 .then()
-                .statusCode(200);
+                .extract()
+                .asString();
+
+        JSONObject json = new JSONObject(response);
+        final int dataLength = json.getJSONArray("data").length();
+        final int metadataCount = json.getJSONObject("metadata").getInt("total");
+
+        assertTrue(dataLength > 0);
+        assertEquals(dataLength, metadataCount);
     }
 
     @Test

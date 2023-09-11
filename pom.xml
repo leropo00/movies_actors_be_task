@@ -77,10 +77,10 @@
       <version>${lombok.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>1.18.20</version>
-      <scope>compile</scope>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20230618</version>
+      <scope>tests</scope>
     </dependency>
   </dependencies>
   <build>
