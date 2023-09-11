@@ -11,6 +11,7 @@ import org.moviesdata.constants.GenderEnum;
 import org.moviesdata.constants.ImdbIdType;
 import org.moviesdata.model.ActorEntity;
 import org.moviesdata.model.MovieEntity;
+import org.moviesdata.validator.Gender;
 import org.moviesdata.validator.ImdbId;
 
 import java.util.Date;
@@ -40,6 +41,7 @@ public class Actor {
     private Date birthDate;
 
     @NotEmpty
+    @Gender
     private String gender;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
