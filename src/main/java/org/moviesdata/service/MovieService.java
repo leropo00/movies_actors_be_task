@@ -44,6 +44,12 @@ public class MovieService {
         // this approach should allow max 2147483647 results
         return Math.toIntExact(movieRepository.count());
     }
+
+    public int searchMoviesCount(MovieQueryParams inputParameters) {
+        // todo need to replace with count taking parameters into account
+        return searchMovies(inputParameters).size();
+    }
+
     public List<Movie> searchMovies(MovieQueryParams inputParameters) {
         StringBuilder queryString = new StringBuilder("select m from Movie m ");
         Parameters parameters = new Parameters();

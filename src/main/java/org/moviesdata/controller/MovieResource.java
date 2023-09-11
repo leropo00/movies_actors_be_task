@@ -8,8 +8,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import org.eclipse.microprofile.metrics.annotation.Counted;
+import org.moviesdata.domain.Actor;
 import org.moviesdata.domain.Movie;
 import org.moviesdata.domain.MovieQueryParams;
+import org.moviesdata.response.ActorResponse;
+import org.moviesdata.response.MovieResponse;
+import org.moviesdata.response.ResponseMetadata;
 import org.moviesdata.service.MovieService;
 
 import java.util.List;
@@ -35,19 +39,27 @@ public class MovieResource {
         if(pageIndex.isPresent() && pageSize.isEmpty()) return Response.status(Response.Status.BAD_REQUEST).build();
         final Optional<Page> pagination = pageSize.isPresent() ?
                 Optional.of(Page.of(pageIndex.orElse(0), pageSize.get())) : Optional.empty();
-
-        List<Movie> movies;
+        Optional<MovieQueryParams> queryParams = Optional.empty();
         if(title.isPresent() || description.isPresent() || releaseYear.isPresent()) {
-            MovieQueryParams queryParams = new MovieQueryParams(title, description, releaseYear, pagination);
-            movies = movieService.searchMovies(queryParams);
+            queryParams = Optional.of(new MovieQueryParams(title, description, releaseYear, pagination));
+        }
+
+        final List<Movie> movies;
+        final int total;
+        if(queryParams.isPresent()) {
+            movies = movieService.searchMovies(queryParams.get());
+            total = queryParams.isPresent() ? movieService.searchMoviesCount(queryParams.get()) : movies.size();
         }
         else if (pagination.isPresent()) {
             movies = movieService.listAllMovies(pagination.get());
+            total = movieService.allMoviesCount();
         }
         else {
             movies = movieService.listAllMovies();
+            total = movies.size();
         }
-        return Response.ok(movies).build();
+        final ResponseMetadata metadata =  pagination.isPresent() ? new ResponseMetadata(total, movies.size(), pagination.get()) : new ResponseMetadata(total);
+        return Response.ok(new MovieResponse(movies, metadata)).build();
     }
 
     @GET
