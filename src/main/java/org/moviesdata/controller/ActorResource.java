@@ -3,14 +3,15 @@ package org.moviesdata.controller;
 import io.quarkus.panache.common.Page;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import org.eclipse.microprofile.metrics.annotation.Counted;
 import org.moviesdata.domain.Actor;
-import org.moviesdata.domain.Movie;
+import org.moviesdata.response.ActorResponse;
+import org.moviesdata.response.ResponseMetadata;
 import org.moviesdata.service.ActorService;
-import org.moviesdata.service.MovieService;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,17 +26,23 @@ public class ActorResource {
 
     @GET
     @Counted(name = "getAllActors", description = "count for: /actors")
-    public Response getAllActors(@QueryParam ("page_index") Optional<Integer> pageIndex,
-                                 @QueryParam ("page_size") Optional<Integer> pageSize) {
+    public Response getAllActors(@QueryParam ("page_index") Optional<@Min (0) Integer> pageIndex,
+                                  @QueryParam ("page_size") Optional<@Min (1) Integer> pageSize) {
         if(pageIndex.isPresent() && pageSize.isEmpty()) return Response.status(Response.Status.BAD_REQUEST).build();
-        List<Actor> actors;
+        final ActorResponse response;
         if(pageSize.isPresent()) {
-            actors = actorService.listAllActors(Page.of(pageIndex.orElse(0), pageSize.get()));
+            Page pagination = Page.of(pageIndex.orElse(0), pageSize.get());
+            List<Actor>actors = actorService.listAllActors(pagination);
+            ResponseMetadata metadata = new ResponseMetadata(actorService.allActorsCount(), actors.size(), pagination);
+            if(metadata.outsidePaginationBoundaries()) return Response.status(Response.Status.BAD_REQUEST).build();
+
+            response = new ActorResponse(actors, metadata);
         }
         else {
-            actors = actorService.listAllActors();
+            List<Actor>actors = actorService.listAllActors();
+            response = new ActorResponse(actors, new ResponseMetadata(actors.size()));
         }
-        return Response.ok(actors).build();
+        return Response.ok(response).build();
     }
 
     @GET

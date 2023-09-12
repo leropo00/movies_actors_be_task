@@ -17,6 +17,13 @@ public class MovieQueryParams {
 
     private Optional<Page> page;
 
+    public MovieQueryParams() {
+        this.title = Optional.empty();
+        this.description = Optional.empty();
+        this.releaseYear = Optional.empty();
+        this.page = Optional.empty();
+    }
+
     public boolean anyParameterPresent() {
         return title.isPresent() || description.isPresent() || releaseYear.isPresent();
     }

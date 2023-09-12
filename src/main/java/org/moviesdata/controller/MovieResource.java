@@ -3,12 +3,15 @@ package org.moviesdata.controller;
 import io.quarkus.panache.common.Page;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import org.eclipse.microprofile.metrics.annotation.Counted;
 import org.moviesdata.domain.Movie;
 import org.moviesdata.domain.MovieQueryParams;
+import org.moviesdata.response.MovieResponse;
+import org.moviesdata.response.ResponseMetadata;
 import org.moviesdata.service.MovieService;
 
 import java.util.List;
@@ -28,25 +31,35 @@ public class MovieResource {
             @QueryParam ("title") Optional<String> title,
             @QueryParam ("description") Optional<String> description,
             @QueryParam ("release_year") Optional<Integer> releaseYear,
-            @QueryParam ("page_index") Optional<Integer> pageIndex,
-            @QueryParam ("page_size") Optional<Integer> pageSize
+            @QueryParam ("page_index") Optional<@Min(0) Integer>  pageIndex,
+            @QueryParam ("page_size") Optional<@Min (1) Integer> pageSize
     ) {
         if(pageIndex.isPresent() && pageSize.isEmpty()) return Response.status(Response.Status.BAD_REQUEST).build();
         final Optional<Page> pagination = pageSize.isPresent() ?
                 Optional.of(Page.of(pageIndex.orElse(0), pageSize.get())) : Optional.empty();
-
-        List<Movie> movies;
+        Optional<MovieQueryParams> queryParams = Optional.empty();
         if(title.isPresent() || description.isPresent() || releaseYear.isPresent()) {
-            MovieQueryParams queryParams = new MovieQueryParams(title, description, releaseYear, pagination);
-            movies = movieService.searchMovies(queryParams);
+            queryParams = Optional.of(new MovieQueryParams(title, description, releaseYear, pagination));
+        }
+
+        final List<Movie> movies;
+        final int total;
+        if(queryParams.isPresent()) {
+            movies = movieService.searchMovies(queryParams.get());
+            total = pagination.isPresent() ? movieService.searchMoviesCount(queryParams.get()) : movies.size();
         }
         else if (pagination.isPresent()) {
             movies = movieService.listAllMovies(pagination.get());
+            total = movieService.allMoviesCount();
         }
         else {
             movies = movieService.listAllMovies();
+            total = movies.size();
         }
-        return Response.ok(movies).build();
+        final ResponseMetadata metadata =  pagination.isPresent() ? new ResponseMetadata(total, movies.size(), pagination.get()) : new ResponseMetadata(total);
+        if(metadata.outsidePaginationBoundaries()) return Response.status(Response.Status.BAD_REQUEST).build();
+
+        return Response.ok(new MovieResponse(movies, metadata)).build();
     }
 
     @GET
