@@ -2,23 +2,31 @@ package org.moviesdata;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.*;
 import org.moviesdata.domain.Movie;
+import org.moviesdata.model.MovieEntity;
+import org.moviesdata.repository.MovieRepository;
+
+import java.util.Optional;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class WriteOperationsOnEndpointsTest {
 
+    @Inject
+    MovieRepository movieRepository;
+
     @Test
     @Order(1)
     public void testNonExistingMovie() {
-        given()
-                .when().get("/movies/tt0169547")
-                .then()
-                .statusCode(404);
+        Optional<MovieEntity> movie = movieRepository.findByIdOptional("tt0169547");
+        assertFalse(movie.isPresent());
     }
 
     @Test
@@ -36,6 +44,21 @@ public class WriteOperationsOnEndpointsTest {
 
     @Test
     @Order(3)
+    public void checkMovieDataMapping() {
+        Optional<MovieEntity> movieEntityOptional = movieRepository.findByIdOptional("tt0169547");
+        assertTrue(movieEntityOptional.isPresent());
+
+        Movie movie = Movie.fromEntity(movieEntityOptional.get());
+        MovieEntity movieEntity = movieEntityOptional.get();
+
+        assertEquals(movie.getImdbID(), movieEntity.getImdbID());
+        assertEquals(movie.getTitle(), movieEntity.getTitle());
+        assertEquals(movie.getReleaseYear(), movieEntity.getReleaseYear());
+    }
+
+
+    @Test
+    @Order(4)
     public void updateMovie() {
         Movie movie = new Movie();
         movie.setImdbID("tt0169547");
@@ -47,25 +70,25 @@ public class WriteOperationsOnEndpointsTest {
                 .statusCode(200);
     }
 
-    @Test
-    @Order(4)
-    public void rereadMovie() {
-            Movie movie =
-            given()
-                    .when().get("/movies/tt0169547")
-                    .then()
-                    .statusCode(200)
-                    .extract()
-                    .body()
-                    .as(Movie.class);
-
-            assertEquals(1968, movie.getReleaseYear());
-
-    }
 
     @Test
     @Order(5)
-    public void deleteMovies() {
+    public void checkMovieDataChanged() {
+        Optional<MovieEntity> movieEntityOptional = movieRepository.findByIdOptional("tt0169547");
+        assertTrue(movieEntityOptional.isPresent());
+
+        Movie movie = Movie.fromEntity(movieEntityOptional.get());
+
+        assertEquals(movie.getImdbID(), "tt0169547");
+        assertEquals(movie.getTitle(), "Do Androids Dream of Electric Sheep?");
+        assertEquals(movie.getReleaseYear(), 1968);
+        assertThat(movie.getDescription(), containsString("sheep"));
+    }
+
+
+    @Test
+    @Order(6)
+    public void deleteMovie() {
         given()
                 .when().delete("/movies/tt0169547")
                 .then()
@@ -73,11 +96,9 @@ public class WriteOperationsOnEndpointsTest {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     public void movieWasDeleted() {
-        given()
-                .when().get("/movies/tt0169547")
-                .then()
-                .statusCode(404);
+        Optional<MovieEntity> movie = movieRepository.findByIdOptional("tt0169547");
+        assertFalse(movie.isPresent());
     }
 }
