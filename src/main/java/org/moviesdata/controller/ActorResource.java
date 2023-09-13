@@ -114,13 +114,7 @@ public class ActorResource {
                     "Actor with specified id does not exists, it either never existed or was already deleted",
                         actorId)).build();
         }
-        boolean success = actorService.deleteActorById(actorId);
-        if(!success) {
-            return Response.serverError().entity(
-                    new EntityError(ErrorResponseCode.DELETE_OPERATION_FAILED,
-                            "Delete operation failed for unknown reasons",
-                            actorId)).build();
-        }
+        actorService.deleteActorById(actorId);
         return Response.noContent().build();
     }
 }

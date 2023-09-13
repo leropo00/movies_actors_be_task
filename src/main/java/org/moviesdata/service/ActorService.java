@@ -5,14 +5,18 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.moviesdata.domain.Actor;
+import org.moviesdata.domain.Movie;
 import org.moviesdata.model.ActorEntity;
+import org.moviesdata.model.MovieEntity;
 import org.moviesdata.repository.ActorRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -72,7 +76,15 @@ public class ActorService {
     }
 
     @Transactional
-    public boolean deleteActorById(String actorId) {
-        return actorRepository.deleteById(actorId);
+    public void deleteActorById(String actorId) {
+        ActorEntity actor = actorRepository.findById(actorId);
+
+        // a copy of the movies is created, to avoid ConcurentModificationException
+        // this could be inefficient if actor is present in many movies
+        Set<MovieEntity> moviesReference = new HashSet<>(actor.getMovies());
+        for (MovieEntity movie : moviesReference) {
+            movie.removeActor(actor);
+        }
+        actorRepository.delete(actor);
     }
 }
