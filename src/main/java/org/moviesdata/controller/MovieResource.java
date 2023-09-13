@@ -62,7 +62,7 @@ public class MovieResource {
             total = movies.size();
         }
         final ResponseMetadata metadata =  pagination.isPresent() ? new ResponseMetadata(total, movies.size(), pagination.get()) : new ResponseMetadata(total);
-        if(metadata.outsidePaginationBoundaries()) return ResponseGenerator.paginationOutsideBounds();
+        if(metadata.outsidePaginationBoundaries()) return ResponseGenerator.paginationOutsideBounds(metadata);
         return Response.ok(new MovieResponse(movies, metadata)).build();
     }
 

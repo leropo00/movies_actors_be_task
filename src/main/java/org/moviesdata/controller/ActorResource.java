@@ -50,7 +50,7 @@ public class ActorResource {
             Page pagination = Page.of(pageIndex.orElse(0), pageSize.get());
             List<Actor>actors = actorService.listAllActors(pagination);
             ResponseMetadata metadata = new ResponseMetadata(actorService.allActorsCount(), actors.size(), pagination);
-            if(metadata.outsidePaginationBoundaries()) return ResponseGenerator.paginationOutsideBounds();
+            if(metadata.outsidePaginationBoundaries()) return ResponseGenerator.paginationOutsideBounds(metadata);
 
             response = new ActorResponse(actors, metadata);
         }

@@ -13,9 +13,11 @@ public class ResponseGenerator {
                         "When supplying page_index parameter, page_size must also be set")).build();
     }
 
-    public static Response paginationOutsideBounds() {
+    public static Response paginationOutsideBounds(ResponseMetadata metadata) {
         return Response.status(Response.Status.BAD_REQUEST).entity(
                 new PaginationError(ErrorResponseCode.PAGINATION_OUTSIDE_BOUNDARIES,
-                        "Parameter page_index is outside possible bounds")).build();
+                        "Parameter page_index is outside possible bounds",
+                        metadata.calculateMaxPageIndex())
+                ).build();
     }
 }
