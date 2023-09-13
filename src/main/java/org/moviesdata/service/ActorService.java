@@ -1,11 +1,12 @@
 package org.moviesdata.service;
 
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.moviesdata.domain.Actor;
-import org.moviesdata.domain.Movie;
 import org.moviesdata.model.ActorEntity;
 import org.moviesdata.model.MovieEntity;
 import org.moviesdata.repository.ActorRepository;
@@ -58,6 +59,16 @@ public class ActorService {
                 return query.getResultList();
     }
 
+    public ActorEntity findActorWithMovies(String id) {
+        Parameters parameters = new Parameters();
+        parameters.and("id", id);
+        PanacheQuery<ActorEntity> query = actorRepository.find("SELECT a FROM Actor a " +
+                " LEFT JOIN FETCH a.movies WHERE a.imdbID = :id", parameters);
+
+        return query.singleResult();
+    }
+
+
     @Transactional
     public void createActor(Actor actor) {
         ActorEntity entity = ActorEntity.fromDomain(actor, true);
@@ -77,7 +88,7 @@ public class ActorService {
 
     @Transactional
     public void deleteActorById(String actorId) {
-        ActorEntity actor = actorRepository.findById(actorId);
+        ActorEntity actor = findActorWithMovies(actorId);
 
         // a copy of the movies is created, to avoid ConcurentModificationException
         // this could be inefficient if actor is present in many movies
