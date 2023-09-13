@@ -6,4 +6,5 @@ services:
             - '8080:8080'
         image: quarkus/movies-actors-jvm
         build:
+           context: ../../..         
            dockerfile: ./src/main/docker/Dockerfile.jvm
