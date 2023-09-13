@@ -68,4 +68,24 @@ public class ResponseMetadata {
     public boolean outsidePaginationBoundaries() {
         return this.hasPagination && this.total > 0 && this.resultCount == 0;
     }
+
+    public int calculateMaxPageIndex() {
+        if(!this.hasPagination) return 0;
+
+        // only one page is possible
+        if(this.pageSize >= this.total) return 0;
+
+        // number of pages that are filled to max possible size
+        int numberOfFilledPages = this.total / this.pageSize;
+
+        //  integer division in java discards the remainder
+        int remainder  = this.total % this.pageSize;
+
+        // if remainder of division is greater than 0,
+        // this means last page will have number of results equal to remained
+        int numberOfPages = numberOfFilledPages + (remainder > 0 ? 1 : 0);
+
+        // -1 is substracted because pageIndex starts with 0
+        return numberOfPages - 1;
+    }
 }
