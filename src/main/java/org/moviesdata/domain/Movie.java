@@ -10,6 +10,7 @@ import lombok.Data;
 import org.moviesdata.constants.ImdbIdType;
 import org.moviesdata.model.MovieEntity;
 
+import java.lang.reflect.MalformedParameterizedTypeException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.moviesdata.model.ActorEntity;
@@ -42,12 +43,20 @@ public class Movie {
     private List<String> actors;
 
     public static Movie fromEntity(MovieEntity entity) {
+        return fromEntity(entity, false);
+    }
+
+    public static Movie fromEntityWithActors(MovieEntity entity) {
+        return fromEntity(entity, true);
+    }
+
+    public static Movie fromEntity(MovieEntity entity, boolean addActors) {
         Movie movie = new Movie();
         movie.setImdbID(entity.getImdbID());
         movie.setTitle(entity.getTitle());
         movie.setDescription(entity.getDescription());
         movie.setReleaseYear(entity.getReleaseYear());
-        if(entity.getActors() != null) {
+        if(addActors && entity.getActors() != null) {
             movie.setActors(entity.getActors().stream().map(ActorEntity::getImdbID).collect(Collectors.toList()));
         }
         return movie;
