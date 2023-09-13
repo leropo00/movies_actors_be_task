@@ -34,8 +34,16 @@ public class ActorService {
     }
 
     public List<Actor> listAllActors(boolean includeMovies, Optional<Page> page) {
-        // need to implement this
-        return listAllActors();
+        PanacheQuery<ActorEntity> query = includeMovies ? actorsWithMovies() : actorRepository.findAll();
+        if(page.isPresent()) {
+            query.page(page.get());
+        }
+        if(includeMovies) {
+            return query.list().stream().map(Actor::fromEntityWithMovies).collect(Collectors.toList());
+        }
+        else {
+            return query.list().stream().map(Actor::fromEntity).collect(Collectors.toList());
+        }
     }
 
     public Optional<Actor> findActorById(String actorId) {
@@ -96,5 +104,9 @@ public class ActorService {
             movie.removeActor(actor);
         }
         actorRepository.delete(actor);
+    }
+
+    private PanacheQuery<ActorEntity> actorsWithMovies() {
+        return actorRepository.find("SELECT a FROM Actor a LEFT JOIN FETCH a.movies");
     }
 }
