@@ -1,7 +1,6 @@
 package org.moviesdata.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.moviesdata.domain.Movie;
@@ -61,6 +60,16 @@ public class MovieEntity {
             return false;
         MovieEntity other = (MovieEntity) obj;
         return Objects.equals(this.imdbID, other.getImdbID());
+    }
+
+    public void addActor(ActorEntity actor) {
+        this.actors.add(actor);
+        actor.getMovies().add(this);
+    }
+
+    public void removeActor(ActorEntity actor) {
+        this.actors.remove(actor);
+        actor.getMovies().remove(this);
     }
 
     public static MovieEntity fromDomain(Movie data, boolean addDate) {
