@@ -5,15 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -42,20 +34,23 @@ public class ActorResource {
     @GET
     @Counted(name = "getAllActors", description = "count for: /actors")
     public Response getAllActors(@QueryParam ("page_index") Optional<@Min (0) Integer> pageIndex,
-                                  @QueryParam ("page_size") Optional<@Min (1) Integer> pageSize) {
+                                 @QueryParam ("page_size") Optional<@Min (1) Integer> pageSize,
+                                 @QueryParam("include_movies") @DefaultValue("false")  Boolean includeMovies
+    ) {
         if(pageIndex.isPresent() && pageSize.isEmpty()) return ResponseGenerator.pageSizeMissing();
 
-        final ActorResponse response;
-        if(pageSize.isPresent()) {
-            Page pagination = Page.of(pageIndex.orElse(0), pageSize.get());
-            List<Actor>actors = actorService.listAllActors(pagination);
-            ResponseMetadata metadata = new ResponseMetadata(actorService.allActorsCount(), actors.size(), pagination);
-            if(metadata.outsidePaginationBoundaries()) return ResponseGenerator.paginationOutsideBounds(metadata);
+        Optional<Page> pagination = pageSize.isPresent() ?
+                Optional.of(Page.of(pageIndex.orElse(0), pageSize.get())) : Optional.empty();
 
+        List<Actor>actors = actorService.listAllActors(includeMovies, pagination);
+
+        final ActorResponse response;
+        if(pagination.isPresent()) {
+            ResponseMetadata metadata = new ResponseMetadata(actorService.allActorsCount(), actors.size(), pagination.get());
+            if(metadata.outsidePaginationBoundaries()) return ResponseGenerator.paginationOutsideBounds(metadata);
             response = new ActorResponse(actors, metadata);
         }
         else {
-            List<Actor>actors = actorService.listAllActors();
             response = new ActorResponse(actors, new ResponseMetadata(actors.size()));
         }
         return Response.ok(response).build();

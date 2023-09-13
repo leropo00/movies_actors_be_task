@@ -33,10 +33,9 @@ public class ActorService {
                 .list().stream().map(Actor::fromEntity).collect(Collectors.toList());
     }
 
-    public List<Actor> listAllActors(Page page) {
-        return actorRepository.findAll()
-                .page(page)
-                .list().stream().map(Actor::fromEntity).collect(Collectors.toList());
+    public List<Actor> listAllActors(boolean includeMovies, Optional<Page> page) {
+        // need to implement this
+        return listAllActors();
     }
 
     public Optional<Actor> findActorById(String actorId) {
