@@ -34,7 +34,7 @@ public class MovieEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedDate;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "movies_cast",
             joinColumns = @JoinColumn(name = "movie_id"),

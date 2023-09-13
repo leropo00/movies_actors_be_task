@@ -41,7 +41,7 @@ public class ActorEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedDate;
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "actors")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "actors")
     private Set<MovieEntity> movies = new HashSet<>();
 
     public ActorEntity() {}
