@@ -1,7 +1,6 @@
 package org.moviesdata.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.moviesdata.domain.Movie;
@@ -12,6 +11,7 @@ import java.util.*;
 @Table(name = "movies")
 @Setter
 @Getter
+@NamedQuery(name = "Movie.findMovieWithActors", query = "SELECT m FROM Movie m LEFT JOIN FETCH m.actors WHERE m.imdbID = :id")
 public class MovieEntity {
 
     @Id
@@ -35,7 +35,7 @@ public class MovieEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedDate;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "movies_cast",
             joinColumns = @JoinColumn(name = "movie_id"),
@@ -61,6 +61,16 @@ public class MovieEntity {
             return false;
         MovieEntity other = (MovieEntity) obj;
         return Objects.equals(this.imdbID, other.getImdbID());
+    }
+
+    public void addActor(ActorEntity actor) {
+        this.actors.add(actor);
+        actor.getMovies().add(this);
+    }
+
+    public void removeActor(ActorEntity actor) {
+        this.actors.remove(actor);
+        actor.getMovies().remove(this);
     }
 
     public static MovieEntity fromDomain(Movie data, boolean addDate) {

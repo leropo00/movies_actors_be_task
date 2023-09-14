@@ -1,11 +1,14 @@
 package org.moviesdata;
 
 import io.quarkus.test.junit.QuarkusTest;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.moviesdata.constants.ErrorResponseCode;
 import org.moviesdata.domain.Actor;
 import org.moviesdata.domain.Movie;
 
@@ -15,13 +18,13 @@ public class ReadOperationsOnEndpointsTest {
     /*
         TEMPORARY WORKAROUND:
             certain tests use JSON parsing to parse output
-            parsing of ActorResponse and MovieResponse
+            parsing of ActorResponse, MovieResponse and ErrorResponse
             results in stack overflow from jackson parsing
                  at com.fasterxml.jackson.databind.ser.BeanSerializer.serialize(BeanSerializer.java:178)
                  at com.fasterxml.jackson.databind.ser.BeanPropertyWriter.serializeAsField(BeanPropertyWriter.java:732)
                  at com.fasterxml.jackson.databind.ser.std.BeanSerializerBase.serializeFields(BeanSerializerBase.java:772)
 
-            when tested via Postman /actors and /movies endpoints work correctly
+            when tested via Postman the same endpoints work correctly
      */
 
     @Test
@@ -55,6 +58,38 @@ public class ReadOperationsOnEndpointsTest {
 
         assertTrue(dataLength > 0);
         assertEquals(dataLength, metadataCount);
+
+    }
+
+    @Test
+    public void testMoviesWithActorsEndpoint() {
+        String response = given()
+                .when().get("/actors?include_movies=true")
+                .then()
+                .extract()
+                .asString();
+
+        JSONObject json = new JSONObject(response);
+        final JSONArray data =  json.getJSONArray("data");
+        for(int i = 0 ; i < data.length(); i++) {
+            assertTrue(data.getJSONObject(i).has("movies"));
+        }
+    }
+
+    @Test
+    public void testActorsWithMoviesEndpoint() {
+        String response = given()
+                .when().get("/movies?include_actors=true")
+                .then()
+                .extract()
+                .asString();
+
+        JSONObject json = new JSONObject(response);
+        final JSONArray data =  json.getJSONArray("data");
+
+        for(int i = 0 ; i < data.length(); i++) {
+            assertTrue(data.getJSONObject(i).has("actors"));
+        }
     }
 
     @Test
@@ -83,10 +118,16 @@ public class ReadOperationsOnEndpointsTest {
 
     @Test
     public void testPaginationOverTheLimit() {
-        given()
-                .when().get("/actors?page_size=10&page_index=10")
-                .then()
-                .statusCode(400);
+        String response =
+            given()
+                    .when().get("/actors?page_size=10&page_index=10")
+                    .then()
+                    .statusCode(400)
+                    .extract()
+                    .asString();
+
+        JSONObject json = new JSONObject(response);
+        assertEquals(ErrorResponseCode.PAGINATION_OUTSIDE_BOUNDARIES.name(), json.getString("code"));
     }
 
     @Test
@@ -101,7 +142,6 @@ public class ReadOperationsOnEndpointsTest {
                         .as(Movie.class);
 
         assertEquals("tt5027774", movie.getImdbID());
-
     }
 
     @Test
@@ -122,17 +162,30 @@ public class ReadOperationsOnEndpointsTest {
     @Test
     public void testNonExistingMovie() {
 
-        given()
+        String response =
+             given()
                 .when().get("/movies/tt0180093")
                 .then()
-                .statusCode(404);
+                .statusCode(404)
+                .extract()
+                .asString();
+
+        JSONObject json = new JSONObject(response);
+        assertEquals(ErrorResponseCode.ENTITY_NOT_FOUND.name(), json.getString("code"));
     }
 
     @Test
     public void testNonExistingActor() {
-        given()
+        String response =
+                given()
                 .when().get("/actors/nm0001467")
                 .then()
-                .statusCode(404);
+                .statusCode(404)
+                .extract()
+                .asString();
+
+        JSONObject json = new JSONObject(response);
+        assertEquals(ErrorResponseCode.ENTITY_NOT_FOUND.name(), json.getString("code"));
     }
+
 }

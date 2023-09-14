@@ -2,7 +2,6 @@ package org.moviesdata.model;
 
 import jakarta.persistence.*;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.moviesdata.constants.GenderEnum;
@@ -14,6 +13,8 @@ import java.util.*;
 @Table(name = "actors")
 @Setter
 @Getter
+@NamedQuery(name = "Actor.findActorsById", query = "Select a from Actor a  where a.imdbID in ( :ids )")
+@NamedQuery(name = "Actor.findActorWithMovies", query = "SELECT a FROM Actor a LEFT JOIN FETCH a.movies WHERE a.imdbID = :id")
 public class ActorEntity {
 
     @Id
@@ -42,7 +43,7 @@ public class ActorEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedDate;
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "actors")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "actors")
     private Set<MovieEntity> movies = new HashSet<>();
 
     public ActorEntity() {}
@@ -66,6 +67,16 @@ public class ActorEntity {
             return false;
         ActorEntity other = (ActorEntity) obj;
         return Objects.equals(this.imdbID, other.getImdbID());
+    }
+
+    public void addMovie(MovieEntity movie) {
+        this.movies.add(movie);
+        movie.getActors().add(this);
+    }
+
+    public void removeMovie(MovieEntity movie) {
+        this.movies.remove(movie);
+        movie.getActors().remove(this);
     }
 
     public static ActorEntity fromDomain(Actor actor, boolean addDate) {

@@ -1,73 +1,74 @@
-# movies-actors
+# Backend Exercise 
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+## Using docker to containerize the application
+I have  containerized the service, both by running docker commands separately, as well as using docker compose.
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
-
-## Running the application in dev mode
-
-You can run your application in dev mode that enables live coding using:
-```shell script
-./mvnw compile quarkus:dev
-```
-
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
-
-## Packaging and running the application
-
-The application can be packaged using:
+Before running, the application was packaged using maven command in project root folder
 ```shell script
 ./mvnw package
 ```
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+## Using docker commands to containerize application
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
+From project root command following commands were used
+1.) Created  a custom docker image
 ```shell script
-./mvnw package -Dquarkus.package.type=uber-jar
+docker build -f src/main/docker/Dockerfile.jvm -t quarkus/movies-actors-jvm .
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using: 
+2.) Used command to verify that image is present locally
 ```shell script
-./mvnw package -Dnative
+docker image ls
+```
+```console
+REPOSITORY                  TAG       IMAGE ID       CREATED         SIZE
+quarkus/movies-actors-jvm   latest    ac8648d7f0b6   2 minutes ago   448MB
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: 
+3.) Created and started docker container with custom name in detached mode, with such port mapping, so that service is present at port 8080:
 ```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
+docker run --name movies-actors  -i -d --rm -p  8080:8080 quarkus/movies-actors-jvm
 ```
 
-You can then execute your native executable with: `./target/movies-actors-1.0.0-SNAPSHOT-runner`
+4.) Checked than container is running by listing running containers:
+```shell script
+docker ps
+```
+```console
+CONTAINER ID   IMAGE                       COMMAND                  CREATED         
+8e83e819fd2c   quarkus/movies-actors-jvm   "/opt/jboss/containe…"   6 seconds ago  
+STATUS         PORTS                              NAMES
+ Up 5 seconds  0.0.0.0:8080->8080/tcp, 8443/tcp   movies-actors
+```
 
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.
+5.) Used postman to test that application endpoints work correctly.
 
-## Related Guides
+## Using docker compose to containerize the application
 
-- Hibernate ORM ([guide](https://quarkus.io/guides/hibernate-orm)): Define your persistent model with Hibernate ORM and Jakarta Persistence
-- JDBC Driver - H2 ([guide](https://quarkus.io/guides/datasource)): Connect to the H2 database via JDBC
-- Hibernate Validator ([guide](https://quarkus.io/guides/validation)): Validate object properties (field, getter) and method parameters for your beans (REST, CDI, Jakarta Persistence)
-- RESTEasy Classic ([guide](https://quarkus.io/guides/resteasy)): REST endpoint framework implementing Jakarta REST and more
-- Hibernate ORM with Panache ([guide](https://quarkus.io/guides/hibernate-orm-panache)): Simplify your persistence code for Hibernate ORM via the active record or the repository pattern
+1.) First I removed the old image from before to check that image will be correctly built using docker compose:
 
-## Provided Code
+```shell script
+docker image rm quarkus/movies-actors-jvm
+```
+2.) Run docker compose from directory where docker-compose.yml is located in detached mode
 
-### Hibernate ORM
-
-Create your first JPA entity
-
-[Related guide section...](https://quarkus.io/guides/hibernate-orm)
-
-[Related Hibernate with Panache section...](https://quarkus.io/guides/hibernate-orm-panache)
+```shell script
+docker-compose up -d
+```
+3.) Checked than container is running by listing running containers:
 
 
-### RESTEasy JAX-RS
+```shell script
+docker ps
+```
 
-Easily start your RESTful Web Services
+```console
+docker ps
+CONTAINER ID   IMAGE                       COMMAND                  CREATED
+83a1cea51387   quarkus/movies-actors-jvm   "/opt/jboss/containe…"   10 seconds ago  
+STATUS         PORTS                              NAMES
+Up 9 seconds   0.0.0.0:8080->8080/tcp, 8443/tcp   movies-actors
+```
 
-[Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
+
+4.) Used postman again to test that application endpoints work correctly.
+

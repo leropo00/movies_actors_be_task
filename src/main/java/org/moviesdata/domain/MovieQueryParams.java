@@ -17,11 +17,14 @@ public class MovieQueryParams {
 
     private Optional<Page> page;
 
+    private boolean includeActors;
+
     public MovieQueryParams() {
         this.title = Optional.empty();
         this.description = Optional.empty();
         this.releaseYear = Optional.empty();
         this.page = Optional.empty();
+        this.includeActors = true;
     }
 
     public boolean anyParameterPresent() {

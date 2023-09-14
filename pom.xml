@@ -80,7 +80,7 @@
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
       <version>20230618</version>
-      <scope>tests</scope>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <build>

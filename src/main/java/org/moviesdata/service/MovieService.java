@@ -5,7 +5,9 @@ import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import org.moviesdata.domain.Movie;
 import org.moviesdata.domain.MovieQueryParams;
@@ -24,20 +26,35 @@ public class MovieService {
     @Inject
     MovieRepository movieRepository;
 
+    @Inject
+    EntityManager em;
+
     public List<Movie> listAllMovies() {
        return movieRepository.findAll()
                 .list().stream().map(Movie::fromEntity).collect(Collectors.toList());
     }
-    public List<Movie> listAllMovies(Page page) {
-        return movieRepository.findAll()
-                .page(page)
-                .list().stream().map(Movie::fromEntity).collect(Collectors.toList());
+
+    public List<Movie> listAllMovies(boolean includeActors, Optional<Page> page) {
+        PanacheQuery<MovieEntity> query = includeActors ? moviesWithActors() : movieRepository.findAll();
+        if(page.isPresent()) {
+            query.page(page.get());
+        }
+        if(includeActors) {
+            return query.list().stream().map(Movie::fromEntityWithActors).collect(Collectors.toList());
+        }
+        else {
+            return query.list().stream().map(Movie::fromEntity).collect(Collectors.toList());
+        }
+    }
+
+    public Optional<Movie> findMovieById(String movieId, boolean includeActors) {
+        Optional<MovieEntity> movieEntity = includeActors ? findMovieEntityWithActors(movieId) : movieRepository.findByIdOptional(movieId);
+        if(movieEntity.isEmpty()) return Optional.empty();
+        return Optional.of(Movie.fromEntity(movieEntity.get(), includeActors));
     }
 
     public Optional<Movie> findMovieById(String movieId) {
-        Optional<MovieEntity> movieEntity = movieRepository.findByIdOptional(movieId);
-        if(movieEntity.isEmpty()) return Optional.empty();
-        return Optional.of(Movie.fromEntity(movieEntity.get()));
+        return findMovieById(movieId, false);
     }
 
     public int allMoviesCount() {
@@ -51,7 +68,7 @@ public class MovieService {
         Parameters queryParameters = new Parameters();
         prepareSearchQuery(inputParameters, queryString, queryParameters);
 
-        Query query = movieRepository.getEntityManager().createQuery(queryString.toString());
+        Query query = em.createQuery(queryString.toString());
         Map<String, Object> params = queryParameters.map();
         for(String key : params.keySet()) {
             query.setParameter(key, params.get(key));
@@ -63,16 +80,27 @@ public class MovieService {
 
     public List<Movie> searchMovies(MovieQueryParams inputParameters) {
         StringBuilder queryString = new StringBuilder("SELECT m from Movie m ");
+        if(inputParameters.isIncludeActors()) queryString.append(" LEFT JOIN FETCH m.actors ");
         Parameters queryParameters = new Parameters();
         prepareSearchQuery(inputParameters, queryString, queryParameters);
-
         PanacheQuery<MovieEntity> query = movieRepository.find(queryString.toString(), queryParameters);
         if(inputParameters.getPage().isPresent()) {
             query.page(inputParameters.getPage().get());
         }
 
+        if(inputParameters.isIncludeActors()) {
+            return query.list().
+                    stream().map(Movie::fromEntityWithActors).collect(Collectors.toList());
+        }
         return query.list().
                 stream().map(Movie::fromEntity).collect(Collectors.toList());
+    }
+
+    public Optional<MovieEntity> findMovieEntityWithActors(String id) {
+        TypedQuery<MovieEntity> query = em.createNamedQuery("Movie.findMovieWithActors", MovieEntity.class);
+        query.setParameter("id", id);
+        return Optional.ofNullable( query.getResultList()
+                .stream().findFirst().orElse(null));
     }
 
     @Transactional
@@ -84,7 +112,7 @@ public class MovieService {
 
     @Transactional
     public void updateMovie(Movie data, String movieId) {
-        MovieEntity entity = movieRepository.findById(movieId);
+        MovieEntity entity = findMovieEntityWithActors(movieId).get();
         entity.setTitle(data.getTitle());
         entity.setDescription(data.getDescription());
         entity.setReleaseYear(data.getReleaseYear());
@@ -132,5 +160,9 @@ public class MovieService {
             queryParameters.and("release_year", inputParameters.getReleaseYear().get());
         }
         queryString.append(String.join(" and ", statements));
+    }
+
+    private PanacheQuery<MovieEntity> moviesWithActors() {
+        return movieRepository.find("SELECT m from Movie m LEFT JOIN FETCH m.actors");
     }
 }
