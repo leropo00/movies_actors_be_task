@@ -3,6 +3,7 @@ package org.moviesdata;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.*;
 import org.moviesdata.domain.Actor;
 import org.moviesdata.domain.Movie;
@@ -23,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @QuarkusTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class WriteOperationsOnEndpointsTest {
 
     @Inject
@@ -34,11 +36,33 @@ public class WriteOperationsOnEndpointsTest {
     @Inject
     MovieService movieService;
 
+    @BeforeAll
+    @Transactional
+    public void clearIfPresent(){
+        movieRepository.deleteById("tt0169547");
+        actorRepository.deleteById("nm0000148");
+        actorRepository.deleteById("nm0001140");
+    }
+
+    @AfterAll
+    @Transactional
+    public void tearDown(){
+        movieRepository.deleteById("tt0169547");
+        actorRepository.deleteById("nm0000148");
+        actorRepository.deleteById("nm0001140");
+    }
+
     @Test
     @Order(1)
-    public void testNonExistingMovie() {
+    public void testForNonExistence() {
         Optional<MovieEntity> movie = movieRepository.findByIdOptional("tt0169547");
         assertFalse(movie.isPresent());
+
+        Optional<ActorEntity> actor1 = actorRepository.findByIdOptional("nm0000148");
+        assertFalse(actor1.isPresent());
+
+        Optional<ActorEntity> actor2 = actorRepository.findByIdOptional("nm0001140");
+        assertFalse(actor2.isPresent());
     }
 
     @Test
@@ -119,7 +143,7 @@ public class WriteOperationsOnEndpointsTest {
     @Test
     @Order(7)
     public void checkMovieDataChanged() {
-        Optional<MovieEntity> movieEntityOptional = movieRepository.findByIdOptional("tt0169547");
+        Optional<MovieEntity> movieEntityOptional = movieService.findMovieEntityWithActors("tt0169547");
         assertTrue(movieEntityOptional.isPresent());
 
         Movie movie = Movie.fromEntityWithActors(movieEntityOptional.get());
