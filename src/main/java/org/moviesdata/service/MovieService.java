@@ -88,6 +88,15 @@ public class MovieService {
                 stream().map(Movie::fromEntity).collect(Collectors.toList());
     }
 
+    public MovieEntity findMovieWithActors(String id) {
+        Parameters parameters = new Parameters();
+        parameters.and("id", id);
+        PanacheQuery<MovieEntity> query = movieRepository.find("SELECT m FROM Movie m " +
+                " LEFT JOIN FETCH m.actors WHERE m.imdbID = :id", parameters);
+
+        return query.singleResult();
+    }
+
     @Transactional
     public void createMovie(Movie data) {
         MovieEntity entity = MovieEntity.fromDomain(data, true);
@@ -97,7 +106,7 @@ public class MovieService {
 
     @Transactional
     public void updateMovie(Movie data, String movieId) {
-        MovieEntity entity = movieRepository.findById(movieId);
+        MovieEntity entity = findMovieWithActors(movieId);
         entity.setTitle(data.getTitle());
         entity.setDescription(data.getDescription());
         entity.setReleaseYear(data.getReleaseYear());
