@@ -36,7 +36,8 @@ public class MovieResource {
             @QueryParam ("description") Optional<String> description,
             @QueryParam ("release_year") Optional<Integer> releaseYear,
             @QueryParam ("page_index") Optional<@Min(0) Integer>  pageIndex,
-            @QueryParam ("page_size") Optional<@Min (1) Integer> pageSize
+            @QueryParam ("page_size") Optional<@Min (1) Integer> pageSize,
+            @QueryParam("include_actors") @DefaultValue("false")  Boolean includeActors
     ) {
         if(pageIndex.isPresent() && pageSize.isEmpty()) return ResponseGenerator.pageSizeMissing();
 
@@ -44,7 +45,7 @@ public class MovieResource {
                 Optional.of(Page.of(pageIndex.orElse(0), pageSize.get())) : Optional.empty();
         Optional<MovieQueryParams> queryParams = Optional.empty();
         if(title.isPresent() || description.isPresent() || releaseYear.isPresent()) {
-            queryParams = Optional.of(new MovieQueryParams(title, description, releaseYear, pagination));
+            queryParams = Optional.of(new MovieQueryParams(title, description, releaseYear, pagination, includeActors));
         }
 
         final List<Movie> movies;
@@ -53,13 +54,9 @@ public class MovieResource {
             movies = movieService.searchMovies(queryParams.get());
             total = pagination.isPresent() ? movieService.searchMoviesCount(queryParams.get()) : movies.size();
         }
-        else if (pagination.isPresent()) {
-            movies = movieService.listAllMovies(pagination.get());
-            total = movieService.allMoviesCount();
-        }
         else {
-            movies = movieService.listAllMovies();
-            total = movies.size();
+            movies = movieService.listAllMovies(includeActors, pagination);
+            total = pagination.isPresent() ? movieService.allMoviesCount() : movies.size();
         }
         final ResponseMetadata metadata =  pagination.isPresent() ? new ResponseMetadata(total, movies.size(), pagination.get()) : new ResponseMetadata(total);
         if(metadata.outsidePaginationBoundaries()) return ResponseGenerator.paginationOutsideBounds(metadata);

@@ -42,7 +42,7 @@ public class MovieService {
             return query.list().stream().map(Movie::fromEntity).collect(Collectors.toList());
         }
     }
-    
+
     public Optional<Movie> findMovieById(String movieId) {
         Optional<MovieEntity> movieEntity = movieRepository.findByIdOptional(movieId);
         if(movieEntity.isEmpty()) return Optional.empty();
