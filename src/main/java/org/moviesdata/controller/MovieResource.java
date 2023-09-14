@@ -66,8 +66,10 @@ public class MovieResource {
     @GET
     @Path("/{id}")
     @Counted(name = "getSingleMovie", description = "count for: GET /movies/{id}")
-    public Response getSingleMovie(@PathParam("id") String movieId) {
-        Optional<Movie> movie = movieService.findMovieById(movieId);
+    public Response getSingleMovie(
+            @PathParam("id") String movieId,
+            @QueryParam("include_actors") @DefaultValue("false")  Boolean includeActors) {
+        Optional<Movie> movie = movieService.findMovieById(movieId, includeActors);
         if(movie.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).entity(
                     new EntityError(ErrorResponseCode.ENTITY_NOT_FOUND,

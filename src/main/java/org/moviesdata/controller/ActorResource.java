@@ -59,8 +59,10 @@ public class ActorResource {
     @GET
     @Path("/{id}")
     @Counted(name = "getSingleActors", description = "count for: /actors/{id}")
-    public Response getSingleActor(@PathParam("id") String actorId) {
-        Optional<Actor> actor = actorService.findActorById(actorId);
+    public Response getSingleActor(
+            @PathParam("id") String actorId,
+            @QueryParam("include_movies") @DefaultValue("false")  Boolean includeMovies) {
+        Optional<Actor> actor = actorService.findActorById(actorId, includeMovies);
         if(actor.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).entity(
                     new EntityError(ErrorResponseCode.ENTITY_NOT_FOUND,
