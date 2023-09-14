@@ -13,6 +13,8 @@ import java.util.*;
 @Table(name = "actors")
 @Setter
 @Getter
+@NamedQuery(name = "Actor.findActorsById", query = "Select a from Actor a  where a.imdbID in ( :ids )")
+@NamedQuery(name = "Actor.findActorWithMovies", query = "SELECT a FROM Actor a LEFT JOIN FETCH a.movies WHERE a.imdbID = :id")
 public class ActorEntity {
 
     @Id

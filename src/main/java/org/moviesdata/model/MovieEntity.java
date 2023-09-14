@@ -11,6 +11,7 @@ import java.util.*;
 @Table(name = "movies")
 @Setter
 @Getter
+@NamedQuery(name = "Movie.findMovieWithActors", query = "SELECT m FROM Movie m LEFT JOIN FETCH m.actors WHERE m.imdbID = :id")
 public class MovieEntity {
 
     @Id
