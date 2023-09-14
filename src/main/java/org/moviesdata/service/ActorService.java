@@ -46,10 +46,14 @@ public class ActorService {
         }
     }
 
-    public Optional<Actor> findActorById(String actorId) {
-        Optional<ActorEntity> actorEntity = actorRepository.findByIdOptional(actorId);
+    public Optional<Actor> findActorById(String actorId, boolean includeMovies) {
+        Optional<ActorEntity> actorEntity = includeMovies ? findActorEntityWithMovies(actorId) : actorRepository.findByIdOptional(actorId);
         if(actorEntity.isEmpty()) return Optional.empty();
-        return Optional.of(Actor.fromEntity(actorEntity.get()));
+        return Optional.of(Actor.fromEntity(actorEntity.get(), includeMovies));
+    }
+
+    public Optional<Actor> findActorById(String actorId) {
+        return findActorById(actorId, false);
     }
 
     public int allActorsCount() {
@@ -66,13 +70,14 @@ public class ActorService {
                 return query.getResultList();
     }
 
-    public ActorEntity findActorWithMovies(String id) {
+    public Optional<ActorEntity> findActorEntityWithMovies(String id) {
         Parameters parameters = new Parameters();
         parameters.and("id", id);
         PanacheQuery<ActorEntity> query = actorRepository.find("SELECT a FROM Actor a " +
                 " LEFT JOIN FETCH a.movies WHERE a.imdbID = :id", parameters);
 
-        return query.singleResult();
+        return Optional.ofNullable( query.list()
+                .stream().findFirst().orElse(null));
     }
 
 
@@ -95,7 +100,7 @@ public class ActorService {
 
     @Transactional
     public void deleteActorById(String actorId) {
-        ActorEntity actor = findActorWithMovies(actorId);
+        ActorEntity actor = findActorEntityWithMovies(actorId).get();
 
         // a copy of the movies is created, to avoid ConcurentModificationException
         // this could be inefficient if actor is present in many movies

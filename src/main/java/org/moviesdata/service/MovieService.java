@@ -7,7 +7,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
-import org.moviesdata.domain.Actor;
 import org.moviesdata.domain.Movie;
 import org.moviesdata.domain.MovieQueryParams;
 import org.moviesdata.model.ActorEntity;
@@ -43,10 +42,14 @@ public class MovieService {
         }
     }
 
-    public Optional<Movie> findMovieById(String movieId) {
-        Optional<MovieEntity> movieEntity = movieRepository.findByIdOptional(movieId);
+    public Optional<Movie> findMovieById(String movieId, boolean includeActors) {
+        Optional<MovieEntity> movieEntity = includeActors ? findMovieEntityWithActors(movieId) : movieRepository.findByIdOptional(movieId);
         if(movieEntity.isEmpty()) return Optional.empty();
-        return Optional.of(Movie.fromEntity(movieEntity.get()));
+        return Optional.of(Movie.fromEntity(movieEntity.get(), includeActors));
+    }
+
+    public Optional<Movie> findMovieById(String movieId) {
+        return findMovieById(movieId, false);
     }
 
     public int allMoviesCount() {
@@ -88,13 +91,14 @@ public class MovieService {
                 stream().map(Movie::fromEntity).collect(Collectors.toList());
     }
 
-    public MovieEntity findMovieWithActors(String id) {
+    public Optional<MovieEntity> findMovieEntityWithActors(String id) {
         Parameters parameters = new Parameters();
         parameters.and("id", id);
         PanacheQuery<MovieEntity> query = movieRepository.find("SELECT m FROM Movie m " +
                 " LEFT JOIN FETCH m.actors WHERE m.imdbID = :id", parameters);
 
-        return query.singleResult();
+        return Optional.ofNullable( query.list()
+                .stream().findFirst().orElse(null));
     }
 
     @Transactional
@@ -106,7 +110,7 @@ public class MovieService {
 
     @Transactional
     public void updateMovie(Movie data, String movieId) {
-        MovieEntity entity = findMovieWithActors(movieId);
+        MovieEntity entity = findMovieEntityWithActors(movieId).get();
         entity.setTitle(data.getTitle());
         entity.setDescription(data.getDescription());
         entity.setReleaseYear(data.getReleaseYear());
