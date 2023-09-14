@@ -1,6 +1,7 @@
 package org.moviesdata;
 
 import io.quarkus.test.junit.QuarkusTest;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
@@ -57,6 +58,38 @@ public class ReadOperationsOnEndpointsTest {
 
         assertTrue(dataLength > 0);
         assertEquals(dataLength, metadataCount);
+
+    }
+
+    @Test
+    public void testMoviesWithActorsEndpoint() {
+        String response = given()
+                .when().get("/actors?include_movies=true")
+                .then()
+                .extract()
+                .asString();
+
+        JSONObject json = new JSONObject(response);
+        final JSONArray data =  json.getJSONArray("data");
+        for(int i = 0 ; i < data.length(); i++) {
+            assertTrue(data.getJSONObject(i).has("movies"));
+        }
+    }
+
+    @Test
+    public void testActorsWithMoviesEndpoint() {
+        String response = given()
+                .when().get("/movies?include_actors=true")
+                .then()
+                .extract()
+                .asString();
+
+        JSONObject json = new JSONObject(response);
+        final JSONArray data =  json.getJSONArray("data");
+
+        for(int i = 0 ; i < data.length(); i++) {
+            assertTrue(data.getJSONObject(i).has("actors"));
+        }
     }
 
     @Test
@@ -155,4 +188,5 @@ public class ReadOperationsOnEndpointsTest {
         JSONObject json = new JSONObject(response);
         assertEquals(ErrorResponseCode.ENTITY_NOT_FOUND.name(), json.getString("code"));
     }
+
 }

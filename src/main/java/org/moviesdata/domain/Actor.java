@@ -14,6 +14,7 @@ import org.moviesdata.model.MovieEntity;
 import org.moviesdata.validator.Gender;
 import org.moviesdata.validator.ImdbId;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,8 +63,9 @@ public class Actor {
         actor.setLastName(entity.getLastName());
         actor.setGender(entity.getGender().name().toLowerCase());
         actor.setBirthDate(entity.getBirthDate());
-        if(addMovies && entity.getMovies() != null) {
-            actor.setMovies(entity.getMovies().stream().map(MovieEntity::getImdbID).collect(Collectors.toList()));
+        if(addMovies) {
+            actor.setMovies( entity.getMovies() == null ? new ArrayList<>() :
+                    entity.getMovies().stream().map(MovieEntity::getImdbID).collect(Collectors.toList()));
         }
         return actor;
     }

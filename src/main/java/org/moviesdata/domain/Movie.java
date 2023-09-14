@@ -11,6 +11,7 @@ import org.moviesdata.constants.ImdbIdType;
 import org.moviesdata.model.MovieEntity;
 
 import java.lang.reflect.MalformedParameterizedTypeException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.moviesdata.model.ActorEntity;
@@ -56,8 +57,9 @@ public class Movie {
         movie.setTitle(entity.getTitle());
         movie.setDescription(entity.getDescription());
         movie.setReleaseYear(entity.getReleaseYear());
-        if(addActors && entity.getActors() != null) {
-            movie.setActors(entity.getActors().stream().map(ActorEntity::getImdbID).collect(Collectors.toList()));
+        if(addActors) {
+            movie.setActors(entity.getActors() == null ? new ArrayList<>() :
+                    entity.getActors().stream().map(ActorEntity::getImdbID).collect(Collectors.toList()));
         }
         return movie;
     }
