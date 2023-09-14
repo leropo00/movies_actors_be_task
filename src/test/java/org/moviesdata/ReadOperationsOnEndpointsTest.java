@@ -142,7 +142,6 @@ public class ReadOperationsOnEndpointsTest {
                         .as(Movie.class);
 
         assertEquals("tt5027774", movie.getImdbID());
-
     }
 
     @Test
