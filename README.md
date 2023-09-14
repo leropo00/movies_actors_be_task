@@ -1,4 +1,5 @@
 # Backend Exercise 
+Projct directory:  src\main\resources\postman contains the postman collection, with all the endpoints present, that was used during development.
 
 ## Using docker to containerize the application
 I have  containerized the service, both by running docker commands separately, as well as using docker compose.
