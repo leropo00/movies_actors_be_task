@@ -63,11 +63,9 @@ public class ActorService {
     }
 
     public List<ActorEntity> findActorEntities(List<String> ids) {
-                TypedQuery<ActorEntity> query =
-                                em.createQuery("Select a from Actor a " +
-                        " where a.imdbID in ( :ids )", ActorEntity.class);
-                query.setParameter("ids", ids);
-                return query.getResultList();
+        TypedQuery<ActorEntity> query = em.createNamedQuery("Actor.findActorsById", ActorEntity.class);
+        query.setParameter("ids", ids);
+        return query.getResultList();
     }
 
     public List<String> findNonExistingActorEntities(List<String> ids) {
@@ -80,12 +78,10 @@ public class ActorService {
     }
 
     public Optional<ActorEntity> findActorEntityWithMovies(String id) {
-        Parameters parameters = new Parameters();
-        parameters.and("id", id);
-        PanacheQuery<ActorEntity> query = actorRepository.find("SELECT a FROM Actor a " +
-                " LEFT JOIN FETCH a.movies WHERE a.imdbID = :id", parameters);
-
-        return Optional.ofNullable( query.list()
+        TypedQuery<ActorEntity> query =
+                em.createNamedQuery("Actor.findActorWithMovies", ActorEntity.class);
+        query.setParameter("id", id);
+        return Optional.ofNullable( query.getResultList()
                 .stream().findFirst().orElse(null));
     }
 

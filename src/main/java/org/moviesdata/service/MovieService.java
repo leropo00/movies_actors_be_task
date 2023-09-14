@@ -5,7 +5,9 @@ import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import org.moviesdata.domain.Movie;
 import org.moviesdata.domain.MovieQueryParams;
@@ -23,6 +25,9 @@ public class MovieService {
 
     @Inject
     MovieRepository movieRepository;
+
+    @Inject
+    EntityManager em;
 
     public List<Movie> listAllMovies() {
        return movieRepository.findAll()
@@ -63,7 +68,7 @@ public class MovieService {
         Parameters queryParameters = new Parameters();
         prepareSearchQuery(inputParameters, queryString, queryParameters);
 
-        Query query = movieRepository.getEntityManager().createQuery(queryString.toString());
+        Query query = em.createQuery(queryString.toString());
         Map<String, Object> params = queryParameters.map();
         for(String key : params.keySet()) {
             query.setParameter(key, params.get(key));
@@ -92,12 +97,9 @@ public class MovieService {
     }
 
     public Optional<MovieEntity> findMovieEntityWithActors(String id) {
-        Parameters parameters = new Parameters();
-        parameters.and("id", id);
-        PanacheQuery<MovieEntity> query = movieRepository.find("SELECT m FROM Movie m " +
-                " LEFT JOIN FETCH m.actors WHERE m.imdbID = :id", parameters);
-
-        return Optional.ofNullable( query.list()
+        TypedQuery<MovieEntity> query = em.createNamedQuery("Movie.findMovieWithActors", MovieEntity.class);
+        query.setParameter("id", id);
+        return Optional.ofNullable( query.getResultList()
                 .stream().findFirst().orElse(null));
     }
 
