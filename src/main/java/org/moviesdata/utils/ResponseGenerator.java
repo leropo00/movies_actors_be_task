@@ -3,7 +3,10 @@ package org.moviesdata.utils;
 import jakarta.ws.rs.core.Response;
 import org.moviesdata.constants.ErrorResponseCode;
 import org.moviesdata.response.ResponseMetadata;
+import org.moviesdata.response.errors.EntityError;
 import org.moviesdata.response.errors.PaginationError;
+
+import java.util.List;
 
 public class ResponseGenerator {
 
@@ -19,5 +22,12 @@ public class ResponseGenerator {
                         "Parameter page_index is outside possible bounds",
                         metadata.calculateMaxPageIndex())
                 ).build();
+    }
+
+    public static Response nonExistingActors(List<String> ids) {
+        return Response.status(Response.Status.NOT_FOUND).entity(
+                new EntityError(ErrorResponseCode.ENTITY_NOT_FOUND,
+                        "The following actor ids are not present",
+                        ids)).build();
     }
 }

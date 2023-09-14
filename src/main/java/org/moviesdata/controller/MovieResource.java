@@ -15,6 +15,7 @@ import org.moviesdata.response.MovieResponse;
 import org.moviesdata.response.ResponseMetadata;
 import org.moviesdata.response.errors.EntityError;
 import org.moviesdata.response.errors.PaginationError;
+import org.moviesdata.service.ActorService;
 import org.moviesdata.service.MovieService;
 import org.moviesdata.utils.ResponseGenerator;
 
@@ -28,6 +29,10 @@ public class MovieResource {
 
     @Inject
     MovieService movieService;
+
+    @Inject
+    ActorService actorService;
+
 
     @GET
     @Counted(name = "getAllMovies", description = "count for: GET /movies")
@@ -88,6 +93,13 @@ public class MovieResource {
                             "Movie with specified id already exists",
                             movie.getImdbID())).build();
         }
+        if(movie.getActors() != null) {
+            List<String> findNonExistingActorEntities = actorService.findNonExistingActorEntities(movie.getActors());
+            if(!findNonExistingActorEntities.isEmpty()) {
+                return ResponseGenerator.nonExistingActors(findNonExistingActorEntities);
+            }
+        }
+
         movieService.createMovie(movie);
         UriBuilder uriBuilder = uriInfo.getAbsolutePathBuilder();
         uriBuilder.path(movie.getImdbID());
@@ -104,6 +116,13 @@ public class MovieResource {
                             "Movie with specified id does not exists, use POST /movies to create move",
                             movieId)).build();
         }
+        if(data.getActors() != null) {
+            List<String> findNonExistingActorEntities = actorService.findNonExistingActorEntities(data.getActors());
+            if(!findNonExistingActorEntities.isEmpty()) {
+                return ResponseGenerator.nonExistingActors(findNonExistingActorEntities);
+            }
+        }
+
         movieService.updateMovie(data, movieId);
         return Response.ok().build();
     }
