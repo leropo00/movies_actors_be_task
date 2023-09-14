@@ -70,6 +70,15 @@ public class ActorService {
                 return query.getResultList();
     }
 
+    public List<String> findNonExistingActorEntities(List<String> ids) {
+        Set<String> uniqueActorIds = ids.stream()
+                .collect(Collectors.toSet());
+        Set<String> presentActor = findActorEntities(ids)
+                .stream().map(ActorEntity::getImdbID).collect(Collectors.toSet());
+        uniqueActorIds.removeAll(presentActor);
+        return uniqueActorIds.stream().toList();
+    }
+
     public Optional<ActorEntity> findActorEntityWithMovies(String id) {
         Parameters parameters = new Parameters();
         parameters.and("id", id);
