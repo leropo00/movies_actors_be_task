@@ -1,5 +1,18 @@
 # Backend Exercise 
-Projct directory:  src\main\resources\postman contains the postman collection, with all the endpoints present, that was used during development.
+
+## Explanation about commit history
+
+Work was done in the development branch and merged 4 times into master branch, using
+git merge –no-ff, so that new commit was created, instead of fast forwarding master branch.
+When viewed in github history such commits show combined changes from multiple commits, while
+other commits show incremental changes done in the development branch. 
+
+For easier viewing I have added a comment and tags on the 4 merge commits.
+Tags are merged_development_1, merged_development_2, merged_development_3 and merged_development_4, based on their order(1 is first commit, 4 is the last commit).
+
+## Postman collection
+
+Project directory:  src\main\resources\postman contains the postman collection with all the endpoints, that was used during development.
 
 ## Using docker to containerize the application
 I have  containerized the service, both by running docker commands separately, as well as using docker compose.
